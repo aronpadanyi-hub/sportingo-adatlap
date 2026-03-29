@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pálya adatlap | Sportingo</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f9fc; color: #0a1628; }
+    .sp-wrap { max-width: 960px; margin: 0 auto; padding: 32px 20px 60px; }
+    .sp-hero { position: relative; border-radius: 20px; overflow: hidden; margin-bottom: 32px; background: linear-gradient(135deg,#1a8fc1,#2dbf7e); min-height: 280px; }
+    .sp-hero img { width: 100%; height: 340px; object-fit: cover; display: block; }
+    .sp-hero-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(10,22,40,.7) 0%, transparent 60%); }
+    .sp-hero-title { position: absolute; bottom: 0; left: 0; right: 0; padding: 28px 28px 24px; }
+    .sp-hero-title h1 { color: white; font-size: clamp(1.4rem,3vw,2rem); font-weight: 900; margin: 0 0 6px; }
+    .sp-hero-title .sp-location { color: rgba(255,255,255,.75); font-size: .9rem; }
+    .sp-body { display: grid; grid-template-columns: 1fr 340px; gap: 24px; align-items: start; }
+    @media(max-width: 720px) { .sp-body { grid-template-columns: 1fr; } }
+    .sp-card { background: white; border-radius: 16px; border: 1.5px solid #d4e8f0; padding: 20px 22px; margin-bottom: 20px; box-shadow: 0 2px 12px rgba(10,22,40,.05); }
+    .sp-card h2 { font-size: 1rem; font-weight: 800; color: #0a1628; margin: 0 0 14px; }
+    .sp-meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    @media(max-width:480px) { .sp-meta-grid { grid-template-columns: 1fr; } }
+    .sp-meta-item { background: #f0f7fb; border-radius: 10px; padding: 10px 14px; }
+    .sp-meta-label { font-size: .72rem; color: #6b8a9a; font-weight: 600; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 3px; }
+    .sp-meta-value { font-size: .92rem; font-weight: 700; color: #0a1628; }
+    .sp-leiras { font-size: .9rem; color: #3a5060; line-height: 1.7; white-space: pre-wrap; }
+    .sp-map iframe { width: 100%; height: 240px; border: 0; border-radius: 12px; display: block; }
+    .sp-map-link { display: inline-block; margin-top: 10px; font-size: .82rem; color: #1a8fc1; font-weight: 600; text-decoration: none; }
+    .sp-map-link:hover { text-decoration: underline; }
+    .sp-cta { background: linear-gradient(135deg, #1a8fc1, #2dbf7e); border-radius: 16px; padding: 22px; color: white; margin-bottom: 20px; }
+    .sp-cta h3 { font-size: 1rem; font-weight: 800; margin: 0 0 6px; }
+    .sp-cta p { font-size: .82rem; opacity: .85; margin: 0 0 16px; }
+    .sp-cta-btn { display: block; text-align: center; background: white; color: #1a8fc1; font-weight: 800; font-size: .9rem; padding: 12px; border-radius: 10px; text-decoration: none; transition: all .2s; }
+    .sp-cta-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(0,0,0,.15); }
+    .sp-cta-btn.external { color: #0f6a94; }
+    .sp-nyitvatartas { font-size: .85rem; color: #3a5060; line-height: 1.8; white-space: pre-wrap; }
+    .sp-breadcrumb { font-size: .8rem; color: #6b8a9a; margin-bottom: 20px; }
+    .sp-breadcrumb a { color: #1a8fc1; text-decoration: none; }
+    .sp-breadcrumb a:hover { text-decoration: underline; }
+    .sp-tag { display: inline-block; background: #e8f5fb; color: #1a8fc1; font-size: .75rem; font-weight: 700; padding: 3px 10px; border-radius: 20px; margin: 3px 3px 3px 0; }
+    /* Form styles */
+    .sp-form-label { font-size: .8rem; font-weight: 600; color: #3a5060; display: block; margin-bottom: 5px; }
+    .sp-form-input { width: 100%; padding: 10px 12px; border: 1.5px solid #d4e8f0; border-radius: 9px; font-size: .88rem; outline: none; font-family: inherit; }
+    .sp-form-input:focus { border-color: #1a8fc1; }
+    .sp-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    @media(max-width:560px) { .sp-form-grid { grid-template-columns: 1fr; } }
+    .sp-submit-btn { margin-top: 14px; padding: 12px 28px; background: linear-gradient(135deg,#1a8fc1,#2dbf7e); color: white; border: none; border-radius: 10px; font-weight: 800; font-size: .9rem; cursor: pointer; }
+    .sp-submit-btn:disabled { opacity: .6; cursor: not-allowed; }
+    /* Loading / 404 */
+    .sp-loading { text-align: center; padding: 80px 20px; color: #6b8a9a; font-size: .95rem; }
+    .sp-loading-spinner { width: 40px; height: 40px; border: 3px solid #d4e8f0; border-top-color: #1a8fc1; border-radius: 50%; animation: spin .8s linear infinite; margin: 0 auto 16px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .sp-404 { text-align: center; padding: 80px 20px; }
+    .sp-404 .sp-404-icon { font-size: 3rem; margin-bottom: 16px; }
+    .sp-404 h2 { color: #0a1628; margin-bottom: 8px; }
+    .sp-404 p { color: #6b8a9a; font-size: .9rem; margin-bottom: 20px; }
+    .sp-404 a { color: #1a8fc1; font-weight: 600; text-decoration: none; }
+    /* Helyszín link card */
+    .sp-helyszin-link { display: flex; align-items: center; justify-content: space-between; text-decoration: none; color: inherit; padding: 12px 14px; background: #f0f7fb; border-radius: 10px; border: 1.5px solid #d4e8f0; transition: all .2s; }
+    .sp-helyszin-link:hover { border-color: #1a8fc1; background: #e8f5fb; }
+    .sp-helyszin-link-text { font-weight: 700; font-size: .9rem; color: #0a1628; }
+    .sp-helyszin-link-sub { font-size: .78rem; color: #6b8a9a; margin-top: 2px; }
+    .sp-helyszin-link-arrow { color: #1a8fc1; font-weight: 700; font-size: .85rem; }
+  </style>
+</head>
+<body>
+
+<div class="sp-wrap" id="sp-root">
+  <div class="sp-loading">
+    <div class="sp-loading-spinner"></div>
+    Adatok betöltése…
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://amowwfjxeursokkznmxl.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFtb3d3Zmp4ZXVyc29ra3pubXhsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQzNDE4NzQsImV4cCI6MjA4OTkxNzg3NH0.eajpxK96IAF-4XVIv4JALYZ-LqCqXaxU7GIaAE0T5L0';
+
+function getSlug() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get('slug') || '';
+}
+
+function esc(str) {
+  if (!str) return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function fmt(num) {
+  return Number(num).toLocaleString('hu-HU');
+}
+
+async function sbFetch(path) {
+  const res = await fetch(SUPABASE_URL + path, {
+    headers: { apikey: SUPABASE_KEY, Authorization: 'Bearer ' + SUPABASE_KEY, Accept: 'application/json' }
+  });
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  return res.json();
+}
+
+function render404() {
+  document.getElementById('sp-root').innerHTML = `
+    <div class="sp-404">
+      <div class="sp-404-icon">🏟</div>
+      <h2>A pálya nem található</h2>
+      <p>Lehet, hogy a link hibás, vagy a pálya már nem elérhető.</p>
+      <a href="https://sportingo.hu">← Vissza a főoldalra</a>
+    </div>`;
+}
+
+async function init() {
+  const slug = getSlug();
+  if (!slug) { render404(); return; }
+
+  let palya;
+  try {
+    const data = await sbFetch(
+      '/rest/v1/palyas?slug=eq.' + encodeURIComponent(slug)
+      + '&statusz=eq.jovahagyva'
+      + '&select=*,helyszinek(id,nev,slug,varos,helyszin,google_maps_url,maps_link,nyitvatartas_szoveg,foglalasi_email)'
+      + '&limit=1'
+    );
+    palya = data[0];
+  } catch(e) { render404(); return; }
+
+  if (!palya) { render404(); return; }
+
+  const h         = palya.helyszinek || {};
+  const nev       = palya.nev || '';
+  const helyszinNev = palya.helyszin_nev || h.nev || '';
+  const helyszinSlug = h.slug || '';
+  const varos     = palya.varos || h.varos || '';
+  const ar        = palya.ar_per_ora;
+  const boritas   = palya.boritas || '';
+  const fedett    = palya.fedett || '';
+  const sportag   = palya.sportag || '';
+  const jatekforma = palya.jatekforma || '';
+  const leiras    = palya.leiras || '';
+  const kepUrl    = palya.kep_url || '';
+  const nyitvatartas = h.nyitvatartas_szoveg || '';
+  const mapsUrl   = h.google_maps_url || '';
+  const mapsLink  = h.maps_link || '';
+  const foglalasTipus = palya.foglalas_tipus || '';
+  const kulsoLink = palya.kulso_link || '';
+  const foglalasiEmail = palya.foglalasi_email || h.foglalasi_email || '';
+
+  document.title = nev + (varos ? ' – ' + varos : '') + ' | Sportingo';
+
+  // Build meta items
+  const metaItems = [];
+  if (ar) metaItems.push(['Ár', fmt(ar) + ' Ft / óra']);
+  if (boritas) metaItems.push(['Borítás', boritas]);
+  if (fedett) metaItems.push(['Elhelyezés', fedett]);
+  if (sportag) metaItems.push(['Sportág', sportag]);
+  if (jatekforma) metaItems.push(['Játékforma', jatekforma]);
+
+  const metaHTML = metaItems.map(([label, val]) => `
+    <div class="sp-meta-item">
+      <div class="sp-meta-label">${esc(label)}</div>
+      <div class="sp-meta-value">${esc(val)}</div>
+    </div>`).join('');
+
+  // CTA block
+  let ctaHTML = '';
+  if (foglalasTipus === 'nincs') {
+    ctaHTML = `
+      <div class="sp-card" style="text-align:center;padding:18px;">
+        <div style="font-size:1.5rem;margin-bottom:6px;">✅</div>
+        <div style="font-weight:700;color:#0a1628;font-size:.9rem;">Foglalás nem szükséges</div>
+        <div style="font-size:.8rem;color:#6b8a9a;margin-top:4px;">Szabadon látogatható</div>
+      </div>`;
+  } else {
+    let ctaBtn = '';
+    if (foglalasiEmail) {
+      ctaBtn = `<p>Töltsd ki az űrlapot a foglalási kérés elküldéséhez.</p>
+        <a class="sp-cta-btn" href="#foglalas-form">📋 Foglalási kérés küldése</a>`;
+    } else if (kulsoLink) {
+      ctaBtn = `<p>Foglalj online a pálya weboldalán.</p>
+        <a class="sp-cta-btn external" href="${esc(kulsoLink)}" target="_blank" rel="noopener">🔗 Foglalás a weboldalon</a>`;
+    } else {
+      ctaBtn = `<p>Vedd fel a kapcsolatot a helyszínnel.</p>`;
+    }
+    ctaHTML = `<div class="sp-cta"><h3>Foglalás</h3>${ctaBtn}</div>`;
+  }
+
+  // Helyszín sidebar link
+  const helyszinLinkHTML = helyszinNev ? `
+    <div class="sp-card">
+      <h2>📍 Helyszín</h2>
+      <a href="https://sportingo.hu/h/${esc(helyszinSlug)}" class="sp-helyszin-link">
+        <div>
+          <div class="sp-helyszin-link-text">${esc(helyszinNev)}</div>
+          ${varos ? `<div class="sp-helyszin-link-sub">${esc(varos)}</div>` : ''}
+        </div>
+        <div class="sp-helyszin-link-arrow">Helyszín →</div>
+      </a>
+    </div>` : '';
+
+  // Nyitvatartás
+  const nyitHTML = nyitvatartas ? `
+    <div class="sp-card">
+      <h2>🕐 Nyitvatartás</h2>
+      <div class="sp-nyitvatartas">${esc(nyitvatartas)}</div>
+    </div>` : '';
+
+  // Leírás
+  const leirasHTML = leiras ? `
+    <div class="sp-card">
+      <h2>📝 Leírás</h2>
+      <div class="sp-leiras">${esc(leiras)}</div>
+    </div>` : '';
+
+  // Térkép
+  const terképHTML = mapsUrl ? `
+    <div class="sp-card sp-map">
+      <h2>🗺 Térkép</h2>
+      <iframe src="${esc(mapsUrl)}" loading="lazy" allowfullscreen></iframe>
+      ${mapsLink ? `<a class="sp-map-link" href="${esc(mapsLink)}" target="_blank" rel="noopener">Megnyitás Google Maps-ben →</a>` : ''}
+    </div>` : '';
+
+  // Foglalási form
+  const formHTML = (foglalasiEmail && foglalasTipus !== 'nincs') ? `
+    <div class="sp-card" id="foglalas-form" style="margin-top:8px;">
+      <h2>📋 Foglalási kérés küldése</h2>
+      <p style="font-size:.85rem;color:#6b8a9a;margin-bottom:16px;line-height:1.6;">
+        Küldd el a foglalási kérésed, és mi azonnal továbbítjuk a pálya üzemeltetőjének.<br>
+        Rövid időn belül felveszik veled a kapcsolatot.
+      </p>
+      <div id="sp-form-wrap">
+        <div class="sp-form-grid">
+          <div>
+            <label class="sp-form-label">Neved *</label>
+            <input type="text" id="sp-nev" class="sp-form-input" placeholder="pl. Kiss János">
+          </div>
+          <div>
+            <label class="sp-form-label">Email *</label>
+            <input type="email" id="sp-email" class="sp-form-input" placeholder="pl. kiss.janos@gmail.com">
+          </div>
+          <div>
+            <label class="sp-form-label">Telefonszám</label>
+            <input type="tel" id="sp-telefon" class="sp-form-input" placeholder="+36 30 123 4567">
+          </div>
+          <div>
+            <label class="sp-form-label">Kívánt időpont</label>
+            <input type="text" id="sp-idopont" class="sp-form-input" placeholder="pl. 2026.04.15. 18:00">
+          </div>
+          <div style="grid-column:1/-1;">
+            <label class="sp-form-label">Megjegyzés</label>
+            <textarea id="sp-megjegyzes" rows="3" class="sp-form-input" style="resize:vertical;" placeholder="Egyéb kérések, kérdések..."></textarea>
+          </div>
+        </div>
+        <div id="sp-form-error" style="display:none;color:#ef4444;font-size:.82rem;margin-top:8px;"></div>
+        <button onclick="spSendFoglalas()" id="sp-submit-btn" class="sp-submit-btn">📨 Küldés</button>
+      </div>
+    </div>` : '';
+
+  document.getElementById('sp-root').innerHTML = `
+    <div class="sp-wrap">
+      <div class="sp-breadcrumb">
+        <a href="https://sportingo.hu">Főoldal</a> →
+        <a href="https://sportingo.hu/#palyak">Pályák</a> →
+        ${esc(nev)}
+      </div>
+
+      <div class="sp-hero">
+        ${kepUrl
+          ? `<img src="${esc(kepUrl)}" alt="${esc(nev)}">`
+          : `<div style="height:340px;"></div>`}
+        <div class="sp-hero-overlay"></div>
+        <div class="sp-hero-title">
+          <h1>${esc(nev)}</h1>
+          ${varos ? `<div class="sp-location">📍 ${esc(varos)}</div>` : ''}
+        </div>
+      </div>
+
+      <div class="sp-body">
+        <div class="sp-main">
+          ${metaItems.length ? `<div class="sp-card"><h2>Alapadatok</h2><div class="sp-meta-grid">${metaHTML}</div></div>` : ''}
+          ${leirasHTML}
+          ${terképHTML}
+        </div>
+        <div class="sp-sidebar">
+          ${ctaHTML}
+          ${helyszinLinkHTML}
+          ${nyitHTML}
+        </div>
+      </div>
+
+      ${formHTML}
+    </div>`;
+
+  // Store for form use
+  window._spPalya = { foglalasiEmail, nev, helyszinNev };
+}
+
+async function spSendFoglalas() {
+  const { foglalasiEmail, nev, helyszinNev } = window._spPalya || {};
+  const nevVal      = document.getElementById('sp-nev').value.trim();
+  const emailVal    = document.getElementById('sp-email').value.trim();
+  const telefon     = document.getElementById('sp-telefon').value.trim();
+  const idopont     = document.getElementById('sp-idopont').value.trim();
+  const megjegyzes  = document.getElementById('sp-megjegyzes').value.trim();
+  const errEl       = document.getElementById('sp-form-error');
+  const btn         = document.getElementById('sp-submit-btn');
+
+  if (!nevVal || !emailVal) {
+    errEl.textContent = 'Kérjük töltsd ki a kötelező mezőket (név, email)!';
+    errEl.style.display = 'block';
+    return;
+  }
+  errEl.style.display = 'none';
+  btn.disabled = true;
+  btn.textContent = '⏳ Küldés...';
+
+  const html = `<!DOCTYPE html><html><body style="font-family:Arial,sans-serif;background:#f0f7fb;padding:20px;">
+    <div style="max-width:500px;margin:0 auto;background:white;border-radius:16px;padding:24px;box-shadow:0 4px 20px rgba(0,0,0,.08);">
+      <div style="background:linear-gradient(135deg,#1a8fc1,#2dbf7e);border-radius:10px;padding:16px;text-align:center;margin-bottom:20px;">
+        <div style="font-size:24px;">📋</div>
+        <div style="color:white;font-weight:800;font-size:16px;margin-top:6px;">Új foglalási igény</div>
+      </div>
+      <table style="width:100%;border-collapse:collapse;background:#f0f7fb;border-radius:10px;margin-bottom:16px;">
+        <tr><td style="padding:10px 14px;color:#6b8a9a;font-size:13px;">Pálya</td><td style="padding:10px 14px;font-weight:700;font-size:13px;">${helyszinNev} – ${nev}</td></tr>
+        <tr><td style="padding:10px 14px;color:#6b8a9a;font-size:13px;">Foglaló neve</td><td style="padding:10px 14px;font-weight:700;font-size:13px;">${nevVal}</td></tr>
+        <tr><td style="padding:10px 14px;color:#6b8a9a;font-size:13px;">Email</td><td style="padding:10px 14px;font-weight:700;font-size:13px;">${emailVal}</td></tr>
+        ${telefon ? `<tr><td style="padding:10px 14px;color:#6b8a9a;font-size:13px;">Telefon</td><td style="padding:10px 14px;font-weight:700;font-size:13px;">${telefon}</td></tr>` : ''}
+        ${idopont ? `<tr><td style="padding:10px 14px;color:#6b8a9a;font-size:13px;">Kívánt időpont</td><td style="padding:10px 14px;font-weight:700;font-size:13px;">${idopont}</td></tr>` : ''}
+        ${megjegyzes ? `<tr><td style="padding:10px 14px;color:#6b8a9a;font-size:13px;">Megjegyzés</td><td style="padding:10px 14px;font-weight:700;font-size:13px;">${megjegyzes}</td></tr>` : ''}
+      </table>
+      <p style="color:#b0c4ce;font-size:11px;text-align:center;">Sportingo · sportingo.hu</p>
+    </div>
+  </body></html>`;
+
+  try {
+    await fetch(SUPABASE_URL + '/functions/v1/send-email', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + SUPABASE_KEY
+      },
+      body: JSON.stringify({ to: foglalasiEmail, subject: `📋 Új foglalási igény – ${nev}`, html })
+    });
+    document.getElementById('sp-form-wrap').innerHTML = `
+      <div style="text-align:center;padding:24px;">
+        <div style="font-size:2.5rem;margin-bottom:12px;">✅</div>
+        <div style="font-weight:800;font-size:1.1rem;color:#0a1628;margin-bottom:6px;">Elküldve!</div>
+        <div style="font-size:.85rem;color:#6b8a9a;">A pálya üzemeltetője hamarosan felveszi veled a kapcsolatot.</div>
+      </div>`;
+  } catch(e) {
+    btn.disabled = false;
+    btn.textContent = '📨 Küldés';
+    errEl.textContent = 'Hiba történt, kérjük próbáld újra!';
+    errEl.style.display = 'block';
+  }
+}
+
+init();
+</script>
+</body>
+</html>

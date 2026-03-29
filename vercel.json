@@ -1,0 +1,7 @@
+{
+  "routes": [
+    { "src": "/palya", "dest": "/palya.html" },
+    { "src": "/helyszin", "dest": "/helyszin.html" },
+    { "src": "/", "dest": "/palya.html" }
+  ]
+}
