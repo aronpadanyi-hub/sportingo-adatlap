@@ -187,7 +187,7 @@ async function init() {
   const helyszinLinkHTML = helyszinNev ? `
     <div class="sp-card">
       <h2>📍 Helyszín</h2>
-      <a href="https://sportingo.hu/h/${esc(helyszinSlug)}" class="sp-helyszin-link">
+      <a href="https://adatlap.sportingo.hu/helyszin?slug=${esc(helyszinSlug)}" class="sp-helyszin-link">
         <div>
           <div class="sp-helyszin-link-text">${esc(helyszinNev)}</div>
           ${varos ? `<div class="sp-helyszin-link-sub">${esc(varos)}</div>` : ''}
