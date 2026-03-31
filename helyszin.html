@@ -531,6 +531,8 @@ init();
 <script>
 (function(){  // SUPABASE_URL és SUPABASE_KEY a globális scope-ból elérhetők
   let sb = null, isLoggedIn = false, userEmail = '', explicitLogout = false;
+  // _bridgeAckd: true ha kaptunk legalább egy hiteles sp-auth-state/login-success/logout választ
+  let _bridgeAckd = false;
   let allBookings = [], filteredBookings = [], currentPage = 1, activeFilter = 'mind';
   const perPage = 5;
 
@@ -579,41 +581,41 @@ init();
     }
   }
 
+  // ── BRIDGE ÜZENETEK – bridge az egyetlen igazságforrás ──
   window.addEventListener('message', function(e) {
     if (!e.origin.includes('jatekos.sportingo.hu')) return;
     const d = e.data; if (!d) return;
-    const validTypes = ['sp-login-success', 'sp-auth-state', 'sp-logout', 'sp-modal-close'];
+    const validTypes = ['sp-login-success', 'sp-auth-state', 'sp-logout'];
     if (d.type && !validTypes.includes(d.type)) return;
 
+    _bridgeAckd = true; // kaptunk hiteles választ a bridge-től
+
     if (d.loggedIn === true && d.email) {
-      // sp-login-success: MINDIG feldolgozzuk – explicit logout után is!
-      // sp-auth-state (polling): csak ha nem volt explicit logout
-      if (d.type === 'sp-auth-state' && explicitLogout) {
-        // Cross-tab bejelentkezés ellenőrzése: ha a bridge aktív sessiont jelez
-        // és sp_logged_out flag van, töröljük - más lapon bejelentkeztek
-        try { sessionStorage.removeItem('sp_logged_out'); } catch(e3) {}
-        explicitLogout = false;
-        // Folytatjuk a feldolgozást - ne return!
-      }
       const email = d.email.trim().toLowerCase();
       const name  = d.name || email.split('@')[0];
-      isLoggedIn = true; userEmail = email;
-      explicitLogout = false; // reset: új session kezdődik
+      if (d.type === 'sp-auth-state' && explicitLogout) {
+        explicitLogout = false;
+        try { sessionStorage.removeItem('sp_logged_out'); } catch(e3) {}
+      }
+      isLoggedIn = true;
+      userEmail  = email;
+      explicitLogout = false;
       try { sessionStorage.removeItem('sp_logged_out'); } catch(e2) {}
       localStorage.setItem('sp_user', JSON.stringify({ email, name }));
       setLoggedInUI(name, email);
-      if (d.type === 'sp-login-success' || d.type === 'sp-modal-close') {
-        // Bejelentkezés: modal bezár → drawer kinyílik
-        if (loginModalOverlay && loginModalOverlay.classList.contains('open')) {
-          closeLoginModal();
-          setTimeout(openDrawer, 300);
-        }
+      if (d.type === 'sp-login-success' && loginModalOverlay && loginModalOverlay.classList.contains('open')) {
+        closeLoginModal();
+        setTimeout(openDrawer, 300);
       }
     } else {
-      isLoggedIn = false; userEmail = ''; clearAllCache(); setLoggedOutUI();
+      // Bridge azt mondja: nincs session → minden cache törlése
+      isLoggedIn = false;
+      userEmail  = '';
+      clearAllCache();
+      setLoggedOutUI();
       if (d.type === 'sp-logout') {
         explicitLogout = true;
-        try { sessionStorage.setItem('sp_logged_out', '1'); } catch(e2) {}
+        try { sessionStorage.setItem('sp_logged_out', '1'); } catch(e) {}
       }
     }
   });
@@ -716,10 +718,6 @@ init();
 
   document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeDrawer(); closeLoginModal(); } });
 
-  // ── BRIDGE SESSION KÉRÉS ──
-  // Megvárjuk az iframe onload-ját, majd sp-request-session-t küldünk.
-  // Az 'sp-bridge-ready' üzenet is triggereli, ha a bridge korábban tölt be mint az oldal.
-  // Ez kiküszöböli a race condition-t (100ms timeout sokszor kevés volt).
   // ── BRIDGE SESSION KÉRÉS – handshake + retry ──
   // Exponenciális retry amíg _bridgeAckd false; ha az első üzenet elvész (race),
   // a következő próba beérkezik mielőtt a felhasználó észreveszi.
@@ -800,9 +798,12 @@ init();
     return sb;
   }
   function waitForReadyThenLoad(retries = 0) {
-    if (retries > 20) { bookingList.innerHTML = '<div class="sp-empty"><div class="sp-empty-icon">⚠️</div>Nem sikerült betölteni.</div>'; return; }
+    // Megvárjuk: (1) bridge legalább egyszer ackolt ÉS (2) van bejelentkezett user
+    if (retries > 50) { bookingList.innerHTML = '<div class="sp-empty"><div class="sp-empty-icon">⚠️</div>Nem sikerült betölteni.</div>'; return; }
     initSb();
-    if (sb && userEmail) { loadBookings(); return; }
+    if (_bridgeAckd && sb && userEmail) { loadBookings(); return; }
+    // Ha a bridge már ackolt de nincs user → kijelentkezett állapot, stop
+    if (_bridgeAckd && !userEmail) { bookingList.innerHTML = '<div class="sp-empty"><div class="sp-empty-icon">📋</div>Nincs elérhető foglalás.</div>'; return; }
     setTimeout(() => waitForReadyThenLoad(retries + 1), 200);
   }
   async function loadMiniStats() {
