@@ -151,7 +151,7 @@ async function init() {
   });
 
   function palyaCardHTML(p) {
-    const pUrl = p.slug ? `https://sportingo.hu/p/${p.slug}` : '#';
+    const pUrl = p.slug ? `https://adatlap.sportingo.hu/palya?slug=${p.slug}` : '#';
     const tags = [p.boritas, p.fedett].filter(Boolean);
     return `
       <a href="${esc(pUrl)}" class="sh-palya-card">
