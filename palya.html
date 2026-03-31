@@ -1561,6 +1561,28 @@ init();
     setTimeout(function(){ if(!_bridgeAckd) askBridge(); }, 300);
   })();
 
+  // ── SESSION ÚJRALEKÉRÉS FÓKUSZ / LÁTHATÓSÁG ESETÉN ──
+  // Ha a user másik tabról visszatér erre az oldalra, az addig történt
+  // login/logout eseményeket ebben a tabban sosem kapta meg.
+  // Megoldás: fókuszba kerüléskor mindig újra lekérjük az auth állapotot a bridge-től.
+  // Ez az egyetlen megbízható cross-origin szinkronizációs pont.
+  function requestSessionFromBridge(){
+    var ai = document.getElementById('sportingo-auth-iframe');
+    if(ai && ai.contentWindow){
+      try{ ai.contentWindow.postMessage({type:'sp-request-session'},'https://jatekos.sportingo.hu'); }catch(e){}
+    }
+  }
+  // window focus: tab váltás után, amikor ez a tab kerül előtérbe
+  window.addEventListener('focus', requestSessionFromBridge);
+  // visibilitychange: tab előtérbe kerül (mobilon és modern böngészőkben megbízhatóbb)
+  document.addEventListener('visibilitychange', function(){
+    if(document.visibilityState === 'visible') requestSessionFromBridge();
+  });
+  // pageshow: visszanavigálás (back/forward cache) esetén is lefut
+  window.addEventListener('pageshow', function(e){
+    if(e.persisted) requestSessionFromBridge();
+  });
+
   document.getElementById('sp-stat-card-foglalasok').addEventListener('click', () => switchTab('foglalasok'));
   document.getElementById('sp-stat-card-kedvencek').addEventListener('click',  () => switchTab('kedvencek'));
 
