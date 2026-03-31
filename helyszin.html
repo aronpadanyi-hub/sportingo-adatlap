@@ -584,7 +584,13 @@ init();
     if (d.loggedIn === true && d.email) {
       // sp-login-success: MINDIG feldolgozzuk – explicit logout után is!
       // sp-auth-state (polling): csak ha nem volt explicit logout
-      if (d.type === 'sp-auth-state' && explicitLogout) return;
+      if (d.type === 'sp-auth-state' && explicitLogout) {
+        // Cross-tab bejelentkezés ellenőrzése: ha a bridge aktív sessiont jelez
+        // és sp_logged_out flag van, töröljük - más lapon bejelentkeztek
+        try { sessionStorage.removeItem('sp_logged_out'); } catch(e3) {}
+        explicitLogout = false;
+        // Folytatjuk a feldolgozást - ne return!
+      }
       const email = d.email.trim().toLowerCase();
       const name  = d.name || email.split('@')[0];
       isLoggedIn = true; userEmail = email;
@@ -671,7 +677,16 @@ init();
     bookingList.innerHTML = '<div class="sp-loading">⏳ Betöltés...</div>';
     waitForReadyThenLoad(); loadMiniStats();
   }
-  function closeDrawer() { drawer.classList.remove('open'); drawerOverlay.classList.remove('open'); document.body.style.overflow = ''; }
+  function closeDrawer() {
+    drawer.classList.remove('open'); drawerOverlay.classList.remove('open'); document.body.style.overflow = '';
+    // Reset: következő megnyitáskor foglalasok tab legyen aktív
+    document.querySelectorAll('.sp-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.sp-tab-panel').forEach(p => p.classList.remove('active'));
+    const ft = document.querySelector('[data-tab="foglalasok"]');
+    const fp = document.getElementById('sp-tab-foglalasok');
+    if (ft) ft.classList.add('active');
+    if (fp) fp.classList.add('active');
+  }
 
   document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeDrawer(); closeLoginModal(); } });
 
