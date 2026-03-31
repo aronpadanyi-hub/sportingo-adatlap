@@ -254,6 +254,9 @@
 <script>
 const SUPABASE_URL = 'https://amowwfjxeursokkznmxl.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFtb3d3Zmp4ZXVyc29ra3pubXhsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQzNDE4NzQsImV4cCI6MjA4OTkxNzg3NH0.eajpxK96IAF-4XVIv4JALYZ-LqCqXaxU7GIaAE0T5L0';
+// Egyetlen globális Supabase kliens – minden auth/db hívás ezt használja
+const _sbGlobal = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+window._spSb = _sbGlobal;
 
 function getSlug() {
   const params = new URLSearchParams(window.location.search);
@@ -707,8 +710,7 @@ init();
   });
 
   function initSb() {
-    if (!sb && window.supabase && typeof window.supabase.createClient === 'function') {
-      try { sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY); window._spSb = sb; } catch(e) {} }
+    if (!sb) { sb = window._spSb || _sbGlobal; window._spSb = sb; }
     return sb;
   }
   function waitForReadyThenLoad(retries = 0) {
