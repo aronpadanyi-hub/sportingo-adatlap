@@ -541,6 +541,9 @@
 <script>
 const SUPABASE_URL = 'https://amowwfjxeursokkznmxl.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFtb3d3Zmp4ZXVyc29ra3pubXhsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQzNDE4NzQsImV4cCI6MjA4OTkxNzg3NH0.eajpxK96IAF-4XVIv4JALYZ-LqCqXaxU7GIaAE0T5L0';
+// Egyetlen globális Supabase kliens – minden auth/db hívás ezt használja
+const _sbGlobal = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+window._spSb = _sbGlobal;
 
 function getSlug() {
   const params = new URLSearchParams(window.location.search);
@@ -650,11 +653,9 @@ async function init() {
     }
   } catch(e) {}
   // Async session ellenőrzés a háttérben (pontosabb adatok)
-  if (window.supabase) {
-    window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY).auth.getSession().then(({ data: { session } }) => {
-      if (session) SPF.loggedInUser = session.user;
-    }).catch(() => {});
-  }
+  _sbGlobal.auth.getSession().then(({ data: { session } }) => {
+    if (session) SPF.loggedInUser = session.user;
+  }).catch(() => {});
 
   // ── VAN-E SZABAD IDŐPONT? ────────────────────────────────
   // Lekérjük az összes azonos típusú pályát a helyszínen
@@ -699,11 +700,8 @@ async function init() {
       SPF.aktivIdx = origIdx >= 0 ? origIdx : 0;
       // Bejelentkezés ellenőrzés
       try {
-        if (window.supabase) {
-          const sbAuth = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-          const { data: { session } } = await sbAuth.auth.getSession();
-          if (session) SPF.loggedInUser = session.user;
-        }
+        const { data: { session } } = await _sbGlobal.auth.getSession();
+        if (session) SPF.loggedInUser = session.user;
       } catch(e) {}
     }
   } catch(e) { hasNaptar = false; }
@@ -841,8 +839,7 @@ async function spfMount(origPalya) {
   if (!mount) return;
 
   // Supabase inicializálás
-  let sb2;
-  try { sb2 = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY); } catch(e) { return; }
+  const sb2 = _sbGlobal; // globális kliens újrahasználása
 
   // ── RENDER PÁLYA LÉPTETŐ ──────────────────────────────────
   function renderPalyaNav() {
@@ -1527,8 +1524,7 @@ init();
   });
 
   function initSb() {
-    if (!sb && window.supabase && typeof window.supabase.createClient === 'function') {
-      try { sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY); window._spSb = sb; } catch(e) {} }
+    if (!sb) { sb = window._spSb || _sbGlobal; window._spSb = sb; }
     return sb;
   }
   function waitForReadyThenLoad(retries = 0) {
