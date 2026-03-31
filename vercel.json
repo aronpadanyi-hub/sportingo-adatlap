@@ -1,7 +1,9 @@
 {
   "routes": [
-    { "src": "/palya", "dest": "/palya.html" },
-    { "src": "/helyszin", "dest": "/helyszin.html" },
-    { "src": "/", "dest": "/palya.html" }
+    { "src": "/auth-bridge",   "dest": "/auth-bridge.html" },
+    { "src": "/auth-callback", "dest": "/auth-callback.html" },
+    { "src": "/palya",         "dest": "/palya.html" },
+    { "src": "/helyszin",      "dest": "/helyszin.html" },
+    { "src": "/",              "dest": "/palya.html" }
   ]
 }
