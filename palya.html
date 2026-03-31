@@ -141,6 +141,7 @@
     .sp-helyszin-link-sub { font-size: .78rem; color: #6b8a9a; margin-top: 2px; }
     .sp-helyszin-link-arrow { color: #1a8fc1; font-weight: 700; font-size: .85rem; }
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
@@ -310,7 +311,7 @@ async function init() {
   const metaItems = [];
   if (ar) metaItems.push(['Ár', fmt(ar) + ' Ft / óra']);
   if (boritas) metaItems.push(['Borítás', boritas]);
-  if (fedett) metaItems.push(['Elhelyezés', fedett]);
+  if (fedett && fedett !== 'false' && fedett !== false) metaItems.push(['Elhelyezés', fedett === true || fedett === 'true' ? 'Fedett' : fedett]);
   if (sportag) metaItems.push(['Sportág', sportag]);
   if (jatekforma) metaItems.push(['Játékforma', jatekforma]);
   const metaHTML = metaItems.map(([label, val]) => `
