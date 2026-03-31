@@ -350,9 +350,6 @@
     .sp-empty-icon { font-size: 1.5rem; margin-bottom: 8px; }
     .sp-loading { text-align: center; padding: 2rem; color: #6b8a9a; font-size: .85rem; }
     #sportingo-auth-iframe { position: fixed; left: -9999px; top: -9999px; width: 1px; height: 1px; border: none; opacity: 0; pointer-events: none; }
-      #sp-drawer { width: 100vw; }
-      #sp-login-modal { border-radius: 16px 16px 0 0; max-height: 95vh; position: fixed; bottom: 0; width: 100%; }
-      #sp-login-modal-overlay { align-items: flex-end; }
     .sportingo-auth-btn { display: flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 20px; border: 1.5px solid #d4e8f0; background: white; font-family: 'Plus Jakarta Sans', sans-serif; font-size: .85rem; font-weight: 700; color: #1a2e3b; cursor: pointer; transition: all .2s; white-space: nowrap; }
     .sportingo-auth-btn:hover { border-color: #1a8fc1; color: #1a8fc1; background: rgba(26,143,193,.04); }
     .sp-empty { grid-column: 1/-1; text-align: center; padding: 4rem 2rem; background: white; border: 1.5px solid #d4e8f0; border-radius: 18px; color: #6b8a9a; }
@@ -494,9 +491,6 @@
     .sp-logout-btn:hover { background: #fed7d7; }
     .sp-empty { text-align: center; padding: 2rem 1rem; color: #6b8a9a; font-size: .85rem; }
     #sportingo-auth-iframe { position: fixed; left: -9999px; top: -9999px; width: 1px; height: 1px; border: none; opacity: 0; pointer-events: none; }
-      #sp-drawer { width: 100vw; }
-      #sp-login-modal { border-radius: 16px 16px 0 0; max-height: 95vh; position: fixed; bottom: 0; width: 100%; }
-      #sp-login-modal-overlay { align-items: flex-end; }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -1395,7 +1389,7 @@ init();
   window.addEventListener('message', function(e) {
     if (!e.origin.includes('jatekos.sportingo.hu')) return;
     const d = e.data; if (!d) return;
-    const validTypes = ['sp-login-success', 'sp-auth-state', 'sp-logout'];
+    const validTypes = ['sp-login-success', 'sp-auth-state', 'sp-logout', 'sp-modal-close'];
     if (d.type && !validTypes.includes(d.type)) return;
 
     if (d.loggedIn === true && d.email) {
@@ -1409,7 +1403,7 @@ init();
       try { sessionStorage.removeItem('sp_logged_out'); } catch(e2) {}
       localStorage.setItem('sp_user', JSON.stringify({ email, name }));
       setLoggedInUI(name, email);
-      if (d.type === 'sp-login-success') {
+      if (d.type === 'sp-login-success' || d.type === 'sp-modal-close') {
         // Bejelentkezés: modal bezár → drawer kinyílik
         if (loginModalOverlay && loginModalOverlay.classList.contains('open')) {
           closeLoginModal();
