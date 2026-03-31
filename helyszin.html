@@ -152,7 +152,7 @@ async function init() {
 
   function palyaCardHTML(p) {
     const pUrl = p.slug ? `https://adatlap.sportingo.hu/palya?slug=${p.slug}` : '#';
-    const tags = [p.boritas, p.fedett].filter(Boolean);
+    const tags = [p.boritas, p.fedett].filter(v => v && v !== 'false' && v !== false);
     return `
       <a href="${esc(pUrl)}" class="sh-palya-card">
         <div class="sh-palya-thumb">
