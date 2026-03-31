@@ -1509,6 +1509,18 @@ init();
 
   document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeDrawer(); closeLoginModal(); } });
 
+  // IIFE betöltés után 100ms-el kérjük a session állapotot a bridge-től
+  // Ez garantálja hogy megkapjuk a session-t az oldal betöltésekor
+  setTimeout(function requestSessionFromBridge() {
+    const authIframe = document.getElementById('sportingo-auth-iframe');
+    if (authIframe && authIframe.contentWindow) {
+      try { authIframe.contentWindow.postMessage({type:'sp-request-session'}, 'https://jatekos.sportingo.hu'); } catch(e2) {}
+    } else {
+      // Iframe még nem töltött be, próbáljuk újra
+      setTimeout(requestSessionFromBridge, 300);
+    }
+  }, 100);
+
   document.getElementById('sp-stat-card-foglalasok').addEventListener('click', () => switchTab('foglalasok'));
   document.getElementById('sp-stat-card-kedvencek').addEventListener('click',  () => switchTab('kedvencek'));
 
