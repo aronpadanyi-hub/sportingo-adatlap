@@ -4,145 +4,189 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pálya adatlap | Sportingo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f9fc; color: #0a1628; }
-    .sp-wrap { max-width: 960px; margin: 0 auto; padding: 32px 20px 60px; }
-    .sp-hero { position: relative; border-radius: 20px; overflow: hidden; margin-bottom: 32px; background: linear-gradient(135deg,#1a8fc1,#2dbf7e); min-height: 280px; }
-    .sp-hero img { width: 100%; height: 340px; object-fit: cover; display: block; }
-    .sp-hero-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(10,22,40,.7) 0%, transparent 60%); }
-    .sp-hero-title { position: absolute; bottom: 0; left: 0; right: 0; padding: 28px 28px 24px; }
-    .sp-hero-title h1 { color: white; font-size: clamp(1.4rem,3vw,2rem); font-weight: 900; margin: 0 0 6px; }
-    .sp-hero-title .sp-location { color: rgba(255,255,255,.75); font-size: .9rem; }
-    .sp-body { display: grid; grid-template-columns: 1fr 340px; gap: 24px; align-items: start; }
-    @media(max-width: 720px) { .sp-body { grid-template-columns: 1fr; } }
-    .sp-card { background: white; border-radius: 16px; border: 1.5px solid #d4e8f0; padding: 20px 22px; margin-bottom: 20px; box-shadow: 0 2px 12px rgba(10,22,40,.05); }
-    .sp-card h2 { font-size: 1rem; font-weight: 800; color: #0a1628; margin: 0 0 14px; }
+    body { font-family: 'Plus Jakarta Sans', -apple-system, sans-serif; background: #f5f9fc; color: #0a1628; }
+
+    /* ── LAYOUT ── */
+    .sp-wrap { max-width: 1120px; margin: 0 auto; padding: 28px 20px 80px; }
+    .sp-breadcrumb { font-size: .8rem; color: #6b8a9a; margin-bottom: 20px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .sp-breadcrumb a { color: #1a8fc1; text-decoration: none; font-weight: 500; }
+    .sp-breadcrumb a:hover { text-decoration: underline; }
+    .sp-breadcrumb-sep { color: #c0d0da; }
+
+    /* ── HERO ── */
+    .sp-hero { position: relative; border-radius: 24px; overflow: hidden; margin-bottom: 32px; background: linear-gradient(135deg,#1a8fc1,#2dbf7e); min-height: 320px; }
+    .sp-hero img { width: 100%; height: 420px; object-fit: cover; display: block; }
+    .sp-hero-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(10,22,40,.80) 0%, rgba(10,22,40,.15) 60%, transparent 100%); }
+    .sp-hero-title { position: absolute; bottom: 0; left: 0; right: 0; padding: 36px 36px 28px; }
+    .sp-hero-title h1 { color: white; font-size: clamp(1.6rem,3.5vw,2.4rem); font-weight: 900; margin: 0 0 8px; line-height: 1.15; letter-spacing: -.02em; }
+    .sp-hero-title .sp-location { color: rgba(255,255,255,.8); font-size: .95rem; display: flex; align-items: center; gap: 5px; }
+    @media(max-width:600px) { .sp-hero img { height: 260px; } .sp-hero-title { padding: 24px 20px 20px; } }
+
+    /* ── MAIN BODY GRID ── */
+    .sp-body { display: grid; grid-template-columns: 1fr 400px; gap: 28px; align-items: start; }
+    @media(max-width: 900px) { .sp-body { grid-template-columns: 1fr; } }
+
+    /* ── CARDS ── */
+    .sp-card { background: white; border-radius: 20px; border: 1.5px solid #e4eef5; padding: 24px 26px; margin-bottom: 20px; box-shadow: 0 2px 16px rgba(10,22,40,.06); }
+    .sp-card h2 { font-size: 1rem; font-weight: 800; color: #0a1628; margin: 0 0 16px; display: flex; align-items: center; gap: 8px; }
     .sp-meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     @media(max-width:480px) { .sp-meta-grid { grid-template-columns: 1fr; } }
-    .sp-meta-item { background: #f0f7fb; border-radius: 10px; padding: 10px 14px; }
-    .sp-meta-label { font-size: .72rem; color: #6b8a9a; font-weight: 600; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 3px; }
-    .sp-meta-value { font-size: .92rem; font-weight: 700; color: #0a1628; }
-    .sp-leiras { font-size: .9rem; color: #3a5060; line-height: 1.7; white-space: pre-wrap; }
+    .sp-meta-item { background: #f5f9fc; border-radius: 12px; padding: 12px 16px; border: 1px solid #e4eef5; }
+    .sp-meta-label { font-size: .68rem; color: #6b8a9a; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; margin-bottom: 4px; }
+    .sp-meta-value { font-size: .95rem; font-weight: 800; color: #0a1628; }
+    .sp-leiras { font-size: .9rem; color: #3a5060; line-height: 1.75; white-space: pre-wrap; }
     .sp-map iframe { width: 100%; height: 240px; border: 0; border-radius: 12px; display: block; }
-    .sp-map-link { display: inline-block; margin-top: 10px; font-size: .82rem; color: #1a8fc1; font-weight: 600; text-decoration: none; }
+    .sp-map-link { display: inline-flex; align-items: center; gap: 5px; margin-top: 10px; font-size: .82rem; color: #1a8fc1; font-weight: 600; text-decoration: none; }
     .sp-map-link:hover { text-decoration: underline; }
-    .sp-cta { background: linear-gradient(135deg, #1a8fc1, #2dbf7e); border-radius: 16px; padding: 22px; color: white; margin-bottom: 20px; }
-    .sp-cta h3 { font-size: 1rem; font-weight: 800; margin: 0 0 6px; }
-    .sp-cta p { font-size: .82rem; opacity: .85; margin: 0 0 16px; }
-    .sp-cta-btn { display: block; text-align: center; background: white; color: #1a8fc1; font-weight: 800; font-size: .9rem; padding: 12px; border-radius: 10px; text-decoration: none; transition: all .2s; }
-    .sp-cta-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(0,0,0,.15); }
-    .sp-cta-btn.external { color: #0f6a94; }
-    .sp-nyitvatartas { font-size: .85rem; color: #3a5060; line-height: 1.8; white-space: pre-wrap; }
-    .sp-breadcrumb { font-size: .8rem; color: #6b8a9a; margin-bottom: 20px; }
-    .sp-breadcrumb a { color: #1a8fc1; text-decoration: none; }
-    .sp-breadcrumb a:hover { text-decoration: underline; }
-    .sp-tag { display: inline-block; background: #e8f5fb; color: #1a8fc1; font-size: .75rem; font-weight: 700; padding: 3px 10px; border-radius: 20px; margin: 3px 3px 3px 0; }
+    .sp-nyitvatartas { font-size: .88rem; color: #3a5060; line-height: 1.9; white-space: pre-wrap; }
+    .sp-helyszin-link { display: flex; align-items: center; justify-content: space-between; text-decoration: none; color: inherit; padding: 14px 16px; background: #f5f9fc; border-radius: 12px; border: 1.5px solid #e4eef5; transition: all .2s; }
+    .sp-helyszin-link:hover { border-color: #1a8fc1; background: #eaf4fb; transform: translateY(-1px); }
+    .sp-helyszin-link-text { font-weight: 700; font-size: .92rem; color: #0a1628; }
+    .sp-helyszin-link-sub { font-size: .78rem; color: #6b8a9a; margin-top: 2px; }
+    .sp-helyszin-link-arrow { color: #1a8fc1; font-weight: 700; font-size: .88rem; }
+
+    /* ── CTA (email/külső) ── */
+    .sp-cta { background: linear-gradient(135deg, #1a8fc1, #2dbf7e); border-radius: 20px; padding: 24px; color: white; margin-bottom: 20px; }
+    .sp-cta h3 { font-size: 1.05rem; font-weight: 800; margin: 0 0 8px; }
+    .sp-cta p { font-size: .85rem; opacity: .9; margin: 0 0 18px; line-height: 1.5; }
+    .sp-cta-btn { display: block; text-align: center; background: white; color: #1a8fc1; font-weight: 800; font-size: .92rem; padding: 13px; border-radius: 12px; text-decoration: none; transition: all .2s; }
+    .sp-cta-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,.18); }
 
     /* ── NAPTÁRAS FOGLALÁS ── */
-    .spf-wrap { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+    /* A foglalás kártya teljes szélességű, a sidebar alatt jön mobilon */
+    .sp-booking-card { background: white; border-radius: 20px; border: 1.5px solid #e4eef5; overflow: hidden; box-shadow: 0 2px 16px rgba(10,22,40,.06); margin-bottom: 20px; }
+    .sp-booking-card-head { background: linear-gradient(135deg,#1a8fc1,#2dbf7e); padding: 18px 22px; }
+    .sp-booking-card-head h2 { color: white; font-size: 1rem; font-weight: 800; margin: 0; display: flex; align-items: center; gap: 8px; }
+    .sp-booking-card-head p { color: rgba(255,255,255,.85); font-size: .8rem; margin: 4px 0 0; }
+    .sp-booking-inner { padding: 20px 22px; }
+
     /* Pálya léptető */
-    .spf-palya-nav { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
-    .spf-palya-label { font-size: .78rem; font-weight: 700; color: #6b8a9a; text-transform: uppercase; letter-spacing: .5px; margin-right: 4px; }
-    .spf-palya-btn { padding: 5px 12px; border: 1.5px solid #d4e8f0; border-radius: 20px; background: white; font-size: .78rem; font-weight: 700; color: #6b8a9a; cursor: pointer; transition: all .2s; white-space: nowrap; }
+    .spf-palya-nav { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; padding-bottom: 16px; border-bottom: 1.5px solid #f0f7fb; }
+    .spf-palya-label { font-size: .72rem; font-weight: 800; color: #6b8a9a; text-transform: uppercase; letter-spacing: .8px; }
+    .spf-palya-btn { padding: 6px 14px; border: 1.5px solid #e4eef5; border-radius: 20px; background: white; font-size: .8rem; font-weight: 700; color: #6b8a9a; cursor: pointer; transition: all .2s; white-space: nowrap; font-family: inherit; }
     .spf-palya-btn:hover { border-color: #1a8fc1; color: #1a8fc1; }
-    .spf-palya-btn.active { background: linear-gradient(135deg,#1a8fc1,#2dbf7e); border-color: transparent; color: white; }
-    .spf-palya-free-badge { font-size: .68rem; background: rgba(45,191,126,.15); color: #1a9960; border-radius: 10px; padding: 2px 7px; margin-left: 4px; font-weight: 700; }
+    .spf-palya-btn.active { background: linear-gradient(135deg,#1a8fc1,#2dbf7e); border-color: transparent; color: white; box-shadow: 0 3px 10px rgba(26,143,193,.25); }
+    .spf-palya-free-badge { font-size: .65rem; background: rgba(255,255,255,.25); color: white; border-radius: 10px; padding: 1px 6px; margin-left: 3px; font-weight: 700; }
+    .spf-palya-btn:not(.active) .spf-palya-free-badge { background: rgba(45,191,126,.12); color: #1a9960; }
+
     /* Naptár header */
-    .spf-cal-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; border-bottom: 1.5px solid #f0f7fb; background: #fafcfe; }
-    .spf-week-nav { display: flex; align-items: center; gap: 6px; }
-    .spf-week-btn { width: 28px; height: 28px; border: 1.5px solid #d4e8f0; border-radius: 7px; background: white; cursor: pointer; font-size: 1rem; display: flex; align-items: center; justify-content: center; transition: all .2s; color: #3a5060; }
-    .spf-week-btn:hover { border-color: #1a8fc1; color: #1a8fc1; }
-    .spf-week-label { font-size: .82rem; font-weight: 700; color: #0a1628; min-width: 130px; text-align: center; }
+    .spf-cal-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 0 14px; gap: 12px; flex-wrap: wrap; }
+    .spf-week-nav { display: flex; align-items: center; gap: 8px; }
+    .spf-week-btn { width: 32px; height: 32px; border: 1.5px solid #e4eef5; border-radius: 8px; background: white; cursor: pointer; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; transition: all .2s; color: #3a5060; font-family: inherit; }
+    .spf-week-btn:hover { border-color: #1a8fc1; color: #1a8fc1; background: #f0f9ff; }
+    .spf-week-label { font-size: .88rem; font-weight: 800; color: #0a1628; min-width: 140px; text-align: center; }
+    .spf-cal-legend { display: flex; align-items: center; gap: 10px; font-size: .72rem; color: #6b8a9a; flex-wrap: wrap; }
+    .spf-legend-dot { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+
     /* Naptár grid */
-    .spf-cal-grid-wrap { overflow-x: auto; }
-    .spf-cal-grid { display: grid; grid-template-columns: 42px repeat(7, 1fr); min-width: 420px; }
-    .spf-cal-corner { border-bottom: 1.5px solid #f0f7fb; border-right: 1px solid #f0f7fb; background: #fafcfe; }
-    .spf-cal-dayhdr { text-align: center; padding: 7px 2px 5px; border-bottom: 1.5px solid #f0f7fb; border-right: 1px solid rgba(212,232,240,.4); background: #fafcfe; }
-    .spf-cal-dayhdr .dn { font-size: .65rem; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: #6b8a9a; }
-    .spf-cal-dayhdr .dd { font-size: .88rem; font-weight: 800; color: #0a1628; line-height: 1.3; }
-    .spf-cal-dayhdr.today .dd { background: linear-gradient(135deg,#1a8fc1,#2dbf7e); color: white; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-size: .78rem; }
+    .spf-cal-grid-wrap { overflow-x: auto; border-radius: 12px; border: 1.5px solid #e4eef5; }
+    .spf-cal-grid { display: grid; grid-template-columns: 46px repeat(7, 1fr); min-width: 440px; }
+    .spf-cal-corner { border-bottom: 1.5px solid #e4eef5; border-right: 1px solid #e4eef5; background: #fafcfe; }
+    .spf-cal-dayhdr { text-align: center; padding: 10px 4px 8px; border-bottom: 1.5px solid #e4eef5; border-right: 1px solid rgba(212,232,240,.5); background: #fafcfe; }
+    .spf-cal-dayhdr:last-child { border-right: none; }
+    .spf-cal-dayhdr .dn { font-size: .65rem; font-weight: 800; text-transform: uppercase; letter-spacing: .6px; color: #8aa0b0; }
+    .spf-cal-dayhdr .dd { font-size: .92rem; font-weight: 800; color: #0a1628; line-height: 1.4; margin-top: 2px; }
+    .spf-cal-dayhdr.today .dd { background: linear-gradient(135deg,#1a8fc1,#2dbf7e); color: white; border-radius: 50%; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; margin: 2px auto 0; font-size: .8rem; }
     .spf-cal-dayhdr.today .dn { color: #1a8fc1; }
-    .spf-time-lbl { font-size: .62rem; color: #6b8a9a; text-align: right; padding-right: 5px; border-right: 1px solid #d4e8f0; background: white; position: relative; }
-    .spf-time-lbl span { position: absolute; top: -7px; right: 5px; white-space: nowrap; }
-    .spf-slot { border-right: 1px solid rgba(212,232,240,.35); border-bottom: 1px solid rgba(212,232,240,.25); position: relative; transition: all .12s; }
-    .spf-slot.hour-start { border-bottom-color: rgba(212,232,240,.6); }
-    .spf-slot.closed { background: #f9fafb; }
-    .spf-slot.past { background: #f5f5f5; opacity: .5; }
-    .spf-slot.booked { background: #fff8e1; }
-    .spf-slot.booked::after { content: '–'; position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%); font-size: .65rem; color: #f59e0b; font-weight: 700; }
-    .spf-slot.open { background: rgba(45,191,126,.12); cursor: pointer; }
-    .spf-slot.open:hover { background: rgba(45,191,126,.28); transform: scaleY(1.04); z-index: 1; }
-    .spf-slot.selected { background: linear-gradient(135deg,#1a8fc1,#2dbf7e); cursor: pointer; }
-    .spf-slot.selected::after { content: '✓'; position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%); font-size: .62rem; color: white; font-weight: 700; }
-    .spf-slot.today-col { }
+    .spf-time-lbl { font-size: .6rem; color: #8aa0b0; text-align: right; padding-right: 6px; border-right: 1px solid #e4eef5; background: #fafcfe; position: relative; }
+    .spf-time-lbl span { position: absolute; top: -7px; right: 6px; white-space: nowrap; font-weight: 600; }
+    .spf-slot { border-right: 1px solid rgba(228,238,245,.6); border-bottom: 1px solid rgba(228,238,245,.4); position: relative; transition: background .1s; }
+    .spf-slot:last-child { border-right: none; }
+    .spf-slot.hour-start { border-bottom-color: rgba(200,220,232,.7); }
+    .spf-slot.closed { background: #fafafa; }
+    .spf-slot.past { background: #f4f4f4; opacity: .6; }
+    .spf-slot.booked { background: #fff9ec; }
+    .spf-slot.booked::after { content: ''; position: absolute; inset: 2px; background: rgba(245,158,11,.15); border-radius: 2px; }
+    .spf-slot.open { background: rgba(45,191,126,.1); cursor: pointer; }
+    .spf-slot.open:hover { background: rgba(45,191,126,.25); }
+    .spf-slot.selected { background: linear-gradient(180deg,rgba(26,143,193,.85),rgba(45,191,126,.85)); cursor: pointer; }
+    .spf-slot.selected::after { content: '✓'; position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%); font-size: .6rem; color: white; font-weight: 800; }
+
     /* Kiválasztott summary */
-    .spf-selected-bar { background: linear-gradient(135deg,rgba(26,143,193,.06),rgba(45,191,126,.06)); border: 1.5px solid rgba(45,191,126,.25); border-radius: 12px; padding: 12px 14px; margin-top: 12px; display: none; }
+    .spf-selected-bar { background: linear-gradient(135deg,rgba(26,143,193,.05),rgba(45,191,126,.07)); border: 1.5px solid rgba(45,191,126,.3); border-radius: 14px; padding: 14px 16px; margin-top: 14px; display: none; }
     .spf-selected-bar.show { display: block; }
-    .spf-selected-title { font-size: .78rem; font-weight: 800; color: #0a1628; margin-bottom: 8px; }
-    .spf-slot-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 7px; }
-    .spf-slot-tag { background: linear-gradient(135deg,#1a8fc1,#2dbf7e); color: white; font-size: .72rem; font-weight: 700; padding: 3px 10px; border-radius: 20px; display: flex; align-items: center; gap: 5px; }
-    .spf-slot-tag button { background: none; border: none; color: white; cursor: pointer; font-size: .85rem; padding: 0; line-height: 1; opacity: .8; }
-    .spf-slot-tag button:hover { opacity: 1; }
-    .spf-dur-label { font-size: .75rem; color: #6b8a9a; }
+    .spf-selected-title { font-size: .8rem; font-weight: 800; color: #0a1628; margin-bottom: 10px; }
+    .spf-slot-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+    .spf-slot-tag { background: linear-gradient(135deg,#1a8fc1,#2dbf7e); color: white; font-size: .75rem; font-weight: 700; padding: 4px 12px; border-radius: 20px; display: flex; align-items: center; gap: 6px; }
+    .spf-slot-tag button { background: none; border: none; color: rgba(255,255,255,.8); cursor: pointer; font-size: .9rem; padding: 0; line-height: 1; }
+    .spf-slot-tag button:hover { color: white; }
+    .spf-dur-label { font-size: .78rem; color: #6b8a9a; font-weight: 500; }
+
     /* Tovább gomb */
-    .spf-tovabb-btn { width: 100%; margin-top: 12px; padding: 12px; background: linear-gradient(135deg,#1a8fc1,#2dbf7e); color: white; border: none; border-radius: 12px; font-weight: 800; font-size: .92rem; cursor: pointer; transition: all .2s; }
-    .spf-tovabb-btn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(26,143,193,.3); }
-    .spf-tovabb-btn:disabled { opacity: .45; cursor: not-allowed; }
-    /* Step 2 – adatok */
+    .spf-tovabb-btn { width: 100%; margin-top: 14px; padding: 14px; background: linear-gradient(135deg,#1a8fc1,#2dbf7e); color: white; border: none; border-radius: 14px; font-weight: 800; font-size: .95rem; cursor: pointer; transition: all .22s; font-family: inherit; letter-spacing: .01em; }
+    .spf-tovabb-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(26,143,193,.35); }
+    .spf-tovabb-btn:disabled { opacity: .4; cursor: not-allowed; transform: none; box-shadow: none; }
+
+    /* Step kezelés */
     .spf-step { display: none; }
-    .spf-step.active { display: block; }
-    .spf-step-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
-    .spf-step-title { font-size: .95rem; font-weight: 800; color: #0a1628; }
-    .spf-back-btn { font-size: .8rem; color: #1a8fc1; background: none; border: none; cursor: pointer; font-weight: 700; padding: 0; }
-    .spf-user-chip { display: flex; align-items: center; gap: 10px; background: rgba(45,191,126,.08); border: 1.5px solid rgba(45,191,126,.25); border-radius: 12px; padding: 10px 14px; margin-bottom: 14px; }
-    .spf-user-avatar { width: 34px; height: 34px; background: linear-gradient(135deg,#1a8fc1,#2dbf7e); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; color: white; font-size: .9rem; flex-shrink: 0; }
-    .spf-user-name { font-weight: 700; font-size: .88rem; color: #0a1628; }
-    .spf-user-email { font-size: .72rem; color: #6b8a9a; }
-    .spf-form-label { font-size: .75rem; font-weight: 700; color: #3a5060; display: block; margin-bottom: 4px; text-transform: uppercase; letter-spacing: .03em; }
-    .spf-form-input { width: 100%; padding: 10px 12px; border: 1.5px solid #d4e8f0; border-radius: 9px; font-size: .88rem; font-family: inherit; outline: none; transition: border-color .2s; }
-    .spf-form-input:focus { border-color: #1a8fc1; }
-    .spf-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
-    @media(max-width:480px) { .spf-form-grid { grid-template-columns: 1fr; } }
-    /* Step 3 – összefoglaló */
-    .spf-summary-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f0f7fb; font-size: .84rem; }
+    .spf-step.active { display: block; animation: spfFadeIn .2s ease; }
+    @keyframes spfFadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+    .spf-step-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; padding-bottom: 14px; border-bottom: 1.5px solid #f0f7fb; }
+    .spf-step-title { font-size: 1rem; font-weight: 800; color: #0a1628; }
+    .spf-back-btn { font-size: .82rem; color: #1a8fc1; background: #f0f9ff; border: 1.5px solid #d4e8f0; border-radius: 8px; cursor: pointer; font-weight: 700; padding: 6px 12px; font-family: inherit; transition: all .2s; }
+    .spf-back-btn:hover { background: #e0f2ff; }
+
+    /* User chip */
+    .spf-user-chip { display: flex; align-items: center; gap: 12px; background: linear-gradient(135deg,rgba(45,191,126,.06),rgba(26,143,193,.06)); border: 1.5px solid rgba(45,191,126,.25); border-radius: 14px; padding: 12px 16px; margin-bottom: 16px; }
+    .spf-user-avatar { width: 38px; height: 38px; background: linear-gradient(135deg,#1a8fc1,#2dbf7e); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; color: white; font-size: .95rem; flex-shrink: 0; }
+    .spf-user-name { font-weight: 700; font-size: .9rem; color: #0a1628; }
+    .spf-user-email { font-size: .74rem; color: #6b8a9a; margin-top: 1px; }
+
+    /* Form */
+    .spf-form-label { font-size: .72rem; font-weight: 800; color: #6b8a9a; display: block; margin-bottom: 5px; text-transform: uppercase; letter-spacing: .6px; }
+    .spf-form-input { width: 100%; padding: 11px 14px; border: 1.5px solid #e4eef5; border-radius: 10px; font-size: .9rem; font-family: inherit; outline: none; transition: all .2s; background: white; color: #0a1628; }
+    .spf-form-input:focus { border-color: #1a8fc1; box-shadow: 0 0 0 3px rgba(26,143,193,.1); }
+    .spf-form-input:disabled { background: #f5f9fc; color: #6b8a9a; cursor: not-allowed; }
+    .spf-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+    .spf-form-group { margin-bottom: 12px; }
+    @media(max-width:500px) { .spf-form-row { grid-template-columns: 1fr; } }
+
+    /* Summary */
+    .spf-summary-box { background: #f5f9fc; border-radius: 14px; padding: 4px 0; margin-bottom: 14px; border: 1.5px solid #e4eef5; overflow: hidden; }
+    .spf-summary-row { display: flex; justify-content: space-between; align-items: flex-start; padding: 10px 16px; border-bottom: 1px solid #edf3f8; font-size: .86rem; gap: 12px; }
     .spf-summary-row:last-child { border-bottom: none; }
-    .spf-summary-lbl { color: #6b8a9a; font-weight: 600; }
+    .spf-summary-lbl { color: #6b8a9a; font-weight: 600; flex-shrink: 0; }
     .spf-summary-val { color: #0a1628; font-weight: 700; text-align: right; }
+    .spf-warning-box { background: #fffbeb; border: 1.5px solid #fcd34d; border-radius: 12px; padding: 12px 16px; font-size: .8rem; color: #92400e; margin-bottom: 14px; line-height: 1.5; }
+
     /* Success */
-    .spf-success { text-align: center; padding: 24px 16px; }
-    .spf-success-icon { font-size: 3rem; margin-bottom: 12px; }
-    .spf-success-title { font-size: 1.1rem; font-weight: 900; color: #0a1628; margin-bottom: 6px; }
-    .spf-success-sub { font-size: .84rem; color: #6b8a9a; line-height: 1.6; margin-bottom: 16px; }
-    .spf-error { color: #ef4444; font-size: .8rem; margin-top: 6px; display: none; }
-    .spf-loading-row { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 32px; color: #6b8a9a; font-size: .88rem; }
-    .spf-spinner { width: 20px; height: 20px; border: 2px solid #d4e8f0; border-top-color: #1a8fc1; border-radius: 50%; animation: spin .7s linear infinite; flex-shrink: 0; }
-    /* Form styles */
-    .sp-form-label { font-size: .8rem; font-weight: 600; color: #3a5060; display: block; margin-bottom: 5px; }
-    .sp-form-input { width: 100%; padding: 10px 12px; border: 1.5px solid #d4e8f0; border-radius: 9px; font-size: .88rem; outline: none; font-family: inherit; }
+    .spf-success { text-align: center; padding: 32px 16px; }
+    .spf-success-icon { font-size: 3.5rem; margin-bottom: 14px; }
+    .spf-success-title { font-size: 1.2rem; font-weight: 900; color: #0a1628; margin-bottom: 8px; }
+    .spf-success-sub { font-size: .88rem; color: #6b8a9a; line-height: 1.65; margin-bottom: 20px; }
+    .spf-success-info { background: #f5f9fc; border-radius: 14px; padding: 16px; font-size: .86rem; color: #0a1628; line-height: 1.8; text-align: left; margin-bottom: 18px; border: 1.5px solid #e4eef5; }
+
+    /* Error */
+    .spf-error { color: #ef4444; font-size: .82rem; margin-top: 8px; padding: 8px 12px; background: #fef2f2; border-radius: 8px; border: 1px solid #fecaca; display: none; }
+    .spf-loading-row { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 40px; color: #6b8a9a; font-size: .9rem; }
+    .spf-spinner { width: 22px; height: 22px; border: 2.5px solid #e4eef5; border-top-color: #1a8fc1; border-radius: 50%; animation: spin .7s linear infinite; flex-shrink: 0; }
+
+    /* Email form (régi módszer) */
+    .sp-form-label { font-size: .75rem; font-weight: 700; color: #6b8a9a; display: block; margin-bottom: 5px; text-transform: uppercase; letter-spacing: .5px; }
+    .sp-form-input { width: 100%; padding: 11px 14px; border: 1.5px solid #e4eef5; border-radius: 10px; font-size: .9rem; outline: none; font-family: inherit; transition: border-color .2s; }
     .sp-form-input:focus { border-color: #1a8fc1; }
     .sp-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     @media(max-width:560px) { .sp-form-grid { grid-template-columns: 1fr; } }
-    .sp-submit-btn { margin-top: 14px; padding: 12px 28px; background: linear-gradient(135deg,#1a8fc1,#2dbf7e); color: white; border: none; border-radius: 10px; font-weight: 800; font-size: .9rem; cursor: pointer; }
+    .sp-submit-btn { margin-top: 14px; padding: 13px 28px; background: linear-gradient(135deg,#1a8fc1,#2dbf7e); color: white; border: none; border-radius: 12px; font-weight: 800; font-size: .92rem; cursor: pointer; font-family: inherit; }
     .sp-submit-btn:disabled { opacity: .6; cursor: not-allowed; }
+
     /* Loading / 404 */
-    .sp-loading { text-align: center; padding: 80px 20px; color: #6b8a9a; font-size: .95rem; }
-    .sp-loading-spinner { width: 40px; height: 40px; border: 3px solid #d4e8f0; border-top-color: #1a8fc1; border-radius: 50%; animation: spin .8s linear infinite; margin: 0 auto 16px; }
+    .sp-loading { text-align: center; padding: 100px 20px; color: #6b8a9a; font-size: .95rem; }
+    .sp-loading-spinner { width: 44px; height: 44px; border: 3px solid #e4eef5; border-top-color: #1a8fc1; border-radius: 50%; animation: spin .8s linear infinite; margin: 0 auto 18px; }
     @keyframes spin { to { transform: rotate(360deg); } }
     .sp-404 { text-align: center; padding: 80px 20px; }
     .sp-404 .sp-404-icon { font-size: 3rem; margin-bottom: 16px; }
-    .sp-404 h2 { color: #0a1628; margin-bottom: 8px; }
+    .sp-404 h2 { color: #0a1628; margin-bottom: 8px; font-size: 1.3rem; }
     .sp-404 p { color: #6b8a9a; font-size: .9rem; margin-bottom: 20px; }
     .sp-404 a { color: #1a8fc1; font-weight: 600; text-decoration: none; }
-    /* Helyszín link card */
-    .sp-helyszin-link { display: flex; align-items: center; justify-content: space-between; text-decoration: none; color: inherit; padding: 12px 14px; background: #f0f7fb; border-radius: 10px; border: 1.5px solid #d4e8f0; transition: all .2s; }
-    .sp-helyszin-link:hover { border-color: #1a8fc1; background: #e8f5fb; }
-    .sp-helyszin-link-text { font-weight: 700; font-size: .9rem; color: #0a1628; }
-    .sp-helyszin-link-sub { font-size: .78rem; color: #6b8a9a; margin-top: 2px; }
-    .sp-helyszin-link-arrow { color: #1a8fc1; font-weight: 700; font-size: .85rem; }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
+
 <body>
 
 <div class="sp-wrap" id="sp-root">
@@ -254,6 +298,21 @@ async function init() {
   const foglalasiEmail = palya.foglalasi_email || h.foglalasi_email || '';
 
   document.title = nev + (varos ? ' – ' + varos : '') + ' | Sportingo';
+
+  // ── USER AZONOSÍTÁS – cache-ből azonnal ─────────────────
+  try {
+    const cached = localStorage.getItem('sp_user');
+    if (cached) {
+      const u = JSON.parse(cached);
+      if (u && u.email) SPF.loggedInUser = { email: u.email, user_metadata: { full_name: u.name || '' } };
+    }
+  } catch(e) {}
+  // Async session ellenőrzés a háttérben (pontosabb adatok)
+  if (window.supabase) {
+    window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY).auth.getSession().then(({ data: { session } }) => {
+      if (session) SPF.loggedInUser = session.user;
+    }).catch(() => {});
+  }
 
   // ── VAN-E SZABAD IDŐPONT? ────────────────────────────────
   // Lekérjük az összes azonos típusú pályát a helyszínen
@@ -394,31 +453,36 @@ async function init() {
   document.getElementById('sp-root').innerHTML = `
     <div class="sp-wrap">
       <div class="sp-breadcrumb">
-        <a href="https://sportingo.hu">Főoldal</a> →
-        <a href="https://sportingo.hu/#palyak">Pályák</a> →
+        <a href="https://sportingo.hu">Főoldal</a>
+        <span class="sp-breadcrumb-sep">›</span>
+        <a href="https://sportingo.hu/#palyak">Pályák</a>
+        <span class="sp-breadcrumb-sep">›</span>
         ${esc(nev)}
       </div>
+
       <div class="sp-hero">
-        ${kepUrl ? `<img src="${esc(kepUrl)}" alt="${esc(nev)}">` : `<div style="height:340px;"></div>`}
+        ${kepUrl ? `<img src="${esc(kepUrl)}" alt="${esc(nev)}">` : `<div style="height:320px;"></div>`}
         <div class="sp-hero-overlay"></div>
         <div class="sp-hero-title">
           <h1>${esc(nev)}</h1>
           ${varos ? `<div class="sp-location">📍 ${esc(varos)}</div>` : ''}
         </div>
       </div>
+
       <div class="sp-body">
         <div class="sp-main">
-          ${metaItems.length ? `<div class="sp-card"><h2>Alapadatok</h2><div class="sp-meta-grid">${metaHTML}</div></div>` : ''}
+          ${metaItems.length ? `<div class="sp-card"><h2>📊 Alapadatok</h2><div class="sp-meta-grid">${metaHTML}</div></div>` : ''}
           ${leirasHTML}
           ${terképHTML}
         </div>
         <div class="sp-sidebar">
-          ${ctaHTML}
+          ${hasNaptar ? '' : ctaHTML}
           ${helyszinLinkHTML}
           ${nyitHTML}
         </div>
       </div>
-      ${formHTML}
+
+      ${hasNaptar ? `<div id="spf-card"><div id="spf-mount"></div></div>` : formHTML}
     </div>`;
 
   window._spPalya = { foglalasiEmail, nev, helyszinNev };
@@ -455,7 +519,7 @@ async function spfMount(origPalya) {
     const palyaId = SPF.csoportPalyak[SPF.aktivIdx].id;
     const calWrap = document.getElementById('spf-cal-wrap');
     const loading = document.getElementById('spf-cal-loading');
-    if (loading) loading.style.display = 'flex';
+    if (loading) { loading.style.display = 'flex'; loading.style.removeProperty('display'); loading.style.display = 'flex'; }
     if (calWrap) calWrap.style.display = 'none';
 
     const mon = spfGetWeekMonday(SPF.calDate);
@@ -496,7 +560,7 @@ async function spfMount(origPalya) {
 
     SPF_SLOTS.forEach(time => {
       const isHour = time.endsWith(':00');
-      html += `<div class="spf-time-lbl" style="height:24px;">${isHour ? `<span>${time}</span>` : ''}</div>`;
+      html += `<div class="spf-time-lbl" style="height:26px;">${isHour ? `<span>${time}</span>` : ''}</div>`;
       days.forEach(d => {
         const key = `${spfFmtDate(d)}_${time}`;
         const avail = SPF.availableSlots[key];
@@ -509,7 +573,7 @@ async function spfMount(origPalya) {
           cls = isSel ? 'selected' : 'open';
           click = `onclick="spfToggle('${key}')"`;
         }
-        html += `<div class="spf-slot ${cls}${isHour?' hour-start':''}" style="height:24px;" ${click} title="${time}"></div>`;
+        html += `<div class="spf-slot ${cls}${isHour?' hour-start':''}" style="height:26px;" ${click} title="${time}"></div>`;
       });
     });
     html += '</div>';
@@ -583,18 +647,34 @@ async function spfMount(origPalya) {
   function spfPrefillForm() {
     const u = SPF.loggedInUser;
     if (!u) return;
+    // Név: metadata > cache name > email prefix
+    const name = u.user_metadata?.full_name || u.user_metadata?.name || u.user_metadata?.display_name || '';
+    const email = u.email || '';
+    const tel   = u.user_metadata?.telefon || u.user_metadata?.phone || '';
+
     const nEl = document.getElementById('spf-nev');
     const eEl = document.getElementById('spf-email');
     const tEl = document.getElementById('spf-tel');
-    if (nEl) nEl.value = u.user_metadata?.full_name || u.user_metadata?.name || '';
-    if (eEl) { eEl.value = u.email; eEl.disabled = true; eEl.style.opacity = '.6'; }
-    if (tEl && u.user_metadata?.telefon) tEl.value = u.user_metadata.telefon;
-    // Elrejti a "vendégként" toggle-t ha be van lépve
+
+    if (nEl && name) nEl.value = name;
+    if (eEl && email) {
+      eEl.value    = email;
+      eEl.disabled = true;
+      eEl.title    = 'Bejelentkezett fiókod email címe';
+    }
+    if (tEl && tel) tEl.value = tel;
+
+    // User chip megjelenítése
     const chip = document.getElementById('spf-user-chip');
     if (chip) {
-      const name = u.user_metadata?.full_name || u.user_metadata?.name || u.email.split('@')[0];
+      const displayName = name || email.split('@')[0];
       chip.style.display = 'flex';
-      chip.innerHTML = `<div class="spf-user-avatar">${name[0].toUpperCase()}</div><div><div class="spf-user-name">${name}</div><div class="spf-user-email">${u.email}</div></div>`;
+      chip.innerHTML = `
+        <div class="spf-user-avatar">${displayName[0].toUpperCase()}</div>
+        <div>
+          <div class="spf-user-name">👋 Üdv, ${displayName}!</div>
+          <div class="spf-user-email">${email} · Adataid automatikusan kitöltve</div>
+        </div>`;
     }
   }
 
@@ -704,68 +784,76 @@ async function spfMount(origPalya) {
   // ── HTML RENDER ──────────────────────────────────────────
   const activePalya = SPF.csoportPalyak[SPF.aktivIdx];
   mount.innerHTML = `
-    <div class="spf-wrap">
-      <h2 style="font-size:.95rem;font-weight:800;color:#0a1628;margin:0 0 14px;">📅 Online foglalás</h2>
+    <div class="sp-booking-card">
+      <div class="sp-booking-card-head">
+        <h2>📅 Online foglalás</h2>
+        <p>Válassz időpontot, majd add meg az adataid</p>
+      </div>
+      <div class="sp-booking-inner">
 
-      <!-- STEP 1: Naptár -->
-      <div id="spf-step1" class="spf-step active">
-        <div id="spf-palya-nav-wrap">${renderPalyaNav()}</div>
-        <div class="spf-cal-header">
-          <div class="spf-week-nav">
-            <button class="spf-week-btn" onclick="spfChangeWeek(-1)">‹</button>
-            <span class="spf-week-label" id="spf-week-label">–</span>
-            <button class="spf-week-btn" onclick="spfChangeWeek(1)">›</button>
+        <!-- STEP 1: Naptár -->
+        <div id="spf-step1" class="spf-step active">
+          <div id="spf-palya-nav-wrap">${renderPalyaNav()}</div>
+          <div class="spf-cal-header">
+            <div class="spf-week-nav">
+              <button class="spf-week-btn" onclick="spfChangeWeek(-1)">‹</button>
+              <span class="spf-week-label" id="spf-week-label">–</span>
+              <button class="spf-week-btn" onclick="spfChangeWeek(1)">›</button>
+            </div>
+            <div class="spf-cal-legend">
+              <span><span class="spf-legend-dot" style="background:rgba(45,191,126,.5);"></span> Szabad</span>
+              <span><span class="spf-legend-dot" style="background:#fcd34d;"></span> Foglalt</span>
+              <span><span class="spf-legend-dot" style="background:#eee;"></span> Nincs időpont</span>
+            </div>
           </div>
-          <div style="font-size:.72rem;color:#6b8a9a;">🟢 szabad &nbsp; 🟡 foglalt &nbsp; ⬜ nincs időpont</div>
+          <div id="spf-cal-loading" class="spf-loading-row"><div class="spf-spinner"></div> Betöltés...</div>
+          <div id="spf-cal-wrap" class="spf-cal-grid-wrap" style="display:none;">
+            <div id="spf-cal-grid"></div>
+          </div>
+          <div id="spf-selected-bar" class="spf-selected-bar"></div>
+          <button id="spf-tovabb-btn" class="spf-tovabb-btn" onclick="spfGoStep2()" disabled>Tovább → Adatok megadása</button>
         </div>
-        <div id="spf-cal-loading" class="spf-loading-row" style="display:none;"><div class="spf-spinner"></div> Betöltés...</div>
-        <div id="spf-cal-wrap" class="spf-cal-grid-wrap" style="display:none;">
-          <div id="spf-cal-grid"></div>
-        </div>
-        <div id="spf-selected-bar" class="spf-selected-bar"></div>
-        <button id="spf-tovabb-btn" class="spf-tovabb-btn" onclick="spfGoStep2()" disabled>Tovább → Adatok megadása</button>
-      </div>
 
-      <!-- STEP 2: Adatok -->
-      <div id="spf-step2" class="spf-step">
-        <div class="spf-step-header">
-          <div class="spf-step-title">👤 Foglalói adatok</div>
-          <button class="spf-back-btn" onclick="spfGoStep(1)">← Vissza</button>
+        <!-- STEP 2: Adatok -->
+        <div id="spf-step2" class="spf-step">
+          <div class="spf-step-header">
+            <div class="spf-step-title">👤 Foglalói adatok</div>
+            <button class="spf-back-btn" onclick="spfGoStep(1)">← Vissza</button>
+          </div>
+          <div id="spf-user-chip" class="spf-user-chip" style="display:none;"></div>
+          <div class="spf-form-row">
+            <div><label class="spf-form-label">Teljes név *</label><input type="text" id="spf-nev" class="spf-form-input" placeholder="pl. Kiss János"></div>
+            <div><label class="spf-form-label">Telefonszám</label><input type="tel" id="spf-tel" class="spf-form-input" placeholder="+36 30 123 4567"></div>
+          </div>
+          <div class="spf-form-group"><label class="spf-form-label">Email cím *</label><input type="email" id="spf-email" class="spf-form-input" placeholder="pl. email@gmail.com"></div>
+          <div class="spf-form-group"><label class="spf-form-label">Megjegyzés (opcionális)</label><input type="text" id="spf-megjegyzes" class="spf-form-input" placeholder="pl. Csapatmérkőzés, 10 fő"></div>
+          <div id="spf-form-err" class="spf-error"></div>
+          <button class="spf-tovabb-btn" onclick="spfGoStep3()">Tovább → Összefoglaló</button>
         </div>
-        <div id="spf-user-chip" class="spf-user-chip" style="display:none;"></div>
-        <div class="spf-form-grid">
-          <div><label class="spf-form-label">Teljes név *</label><input type="text" id="spf-nev" class="spf-form-input" placeholder="pl. Kiss János"></div>
-          <div><label class="spf-form-label">Telefonszám</label><input type="tel" id="spf-tel" class="spf-form-input" placeholder="+36 30 123 4567"></div>
-        </div>
-        <div style="margin-bottom:10px;"><label class="spf-form-label">Email cím *</label><input type="email" id="spf-email" class="spf-form-input" placeholder="pl. email@gmail.com"></div>
-        <div style="margin-bottom:10px;"><label class="spf-form-label">Megjegyzés</label><input type="text" id="spf-megjegyzes" class="spf-form-input" placeholder="pl. Csapatmérkőzés, 10 fő"></div>
-        <div id="spf-form-err" class="spf-error"></div>
-        <button class="spf-tovabb-btn" onclick="spfGoStep3()">Tovább → Összefoglaló</button>
-      </div>
 
-      <!-- STEP 3: Összefoglaló -->
-      <div id="spf-step3" class="spf-step">
-        <div class="spf-step-header">
-          <div class="spf-step-title">📋 Összefoglaló</div>
-          <button class="spf-back-btn" onclick="spfGoStep(2)">← Vissza</button>
+        <!-- STEP 3: Összefoglaló -->
+        <div id="spf-step3" class="spf-step">
+          <div class="spf-step-header">
+            <div class="spf-step-title">📋 Foglalás összefoglalója</div>
+            <button class="spf-back-btn" onclick="spfGoStep(2)">← Vissza</button>
+          </div>
+          <div class="spf-summary-box" id="spf-summary-rows"></div>
+          <div class="spf-warning-box">⏳ <strong>Jóváhagyásos foglalás:</strong> A pálya tulajdonosa értesítést kap és visszaigazolja a foglalást. Email értesítőt kapsz!</div>
+          <div id="spf-submit-err" class="spf-error"></div>
+          <button id="spf-submit-btn" class="spf-tovabb-btn" onclick="spfSubmit()">🎯 Foglalás elküldése</button>
         </div>
-        <div style="background:#f0f7fb;border-radius:12px;padding:14px;margin-bottom:12px;" id="spf-summary-rows"></div>
-        <div style="background:#fff8e1;border:1.5px solid #f59e0b;border-radius:10px;padding:10px 14px;font-size:.78rem;color:#92400e;margin-bottom:12px;">
-          ⏳ <strong>Jóváhagyásos foglalás:</strong> A pálya tulajdonosa visszaigazolja – email értesítőt kapsz!
-        </div>
-        <div id="spf-submit-err" class="spf-error"></div>
-        <button id="spf-submit-btn" class="spf-tovabb-btn" onclick="spfSubmit()">🎯 Foglalás elküldése</button>
-      </div>
 
-      <!-- SUCCESS -->
-      <div id="spf-step-success" class="spf-step">
-        <div class="spf-success">
-          <div class="spf-success-icon">✅</div>
-          <div class="spf-success-title">Foglalás elküldve!</div>
-          <div class="spf-success-sub">A pálya tulajdonosa hamarosan visszaigazolja. Email értesítőt kapsz!</div>
-          <div id="spf-success-info" style="background:#f0f7fb;border-radius:12px;padding:14px;font-size:.84rem;color:#0a1628;line-height:1.7;margin-bottom:16px;text-align:left;"></div>
-          <button class="spf-tovabb-btn" onclick="spfReset()">← Új foglalás</button>
+        <!-- SUCCESS -->
+        <div id="spf-step-success" class="spf-step">
+          <div class="spf-success">
+            <div class="spf-success-icon">✅</div>
+            <div class="spf-success-title">Foglalás elküldve!</div>
+            <div class="spf-success-sub">A pálya tulajdonosa hamarosan visszaigazolja a foglalásodat. Email értesítőt kapsz!</div>
+            <div class="spf-success-info" id="spf-success-info"></div>
+            <button class="spf-tovabb-btn" style="max-width:280px;margin:0 auto;" onclick="spfReset()">← Új foglalás</button>
+          </div>
         </div>
+
       </div>
     </div>`;
 
