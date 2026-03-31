@@ -1346,8 +1346,6 @@ init();
 <script>
 (function(){  // SUPABASE_URL és SUPABASE_KEY a globális scope-ból elérhetők
   let sb = null, isLoggedIn = false, userEmail = '', explicitLogout = false;
-  // _bridgeAckd: true ha kaptunk legalább egy hiteles sp-auth-state/login-success/logout választ
-  let _bridgeAckd = false;
   let allBookings = [], filteredBookings = [], currentPage = 1, activeFilter = 'mind';
   const perPage = 5;
 
@@ -1391,75 +1389,88 @@ init();
     if (cached) {
       try {
         const u = JSON.parse(cached);
-        if (u && u.email) { /* Csak UI hint – isLoggedIn/userEmail csak bridge választól lesz true */ setLoggedInUI(u.name || u.email.split('@')[0], u.email); }
+        if (u && u.email) { isLoggedIn = true; userEmail = u.email.trim().toLowerCase(); setLoggedInUI(u.name || u.email.split('@')[0], u.email); }
       } catch(e) {}
     }
   }
 
-  // ── BRIDGE ÜZENETEK – bridge az egyetlen igazságforrás ──
   window.addEventListener('message', function(e) {
     if (!e.origin.includes('jatekos.sportingo.hu')) return;
     const d = e.data; if (!d) return;
-    const validTypes = ['sp-login-success', 'sp-auth-state', 'sp-logout'];
+    const validTypes = ['sp-login-success', 'sp-auth-state', 'sp-logout', 'sp-modal-close'];
     if (d.type && !validTypes.includes(d.type)) return;
 
-    _bridgeAckd = true; // kaptunk hiteles választ a bridge-től
-
     if (d.loggedIn === true && d.email) {
+      // sp-login-success: MINDIG feldolgozzuk – explicit logout után is!
+      // sp-auth-state (polling): csak ha nem volt explicit logout
+      if (d.type === 'sp-auth-state' && explicitLogout) {
+        // Cross-tab bejelentkezés ellenőrzése: ha a bridge aktív sessiont jelez
+        // és sp_logged_out flag van, töröljük - más lapon bejelentkeztek
+        try { sessionStorage.removeItem('sp_logged_out'); } catch(e3) {}
+        explicitLogout = false;
+        // Folytatjuk a feldolgozást - ne return!
+      }
       const email = d.email.trim().toLowerCase();
       const name  = d.name || email.split('@')[0];
-      if (d.type === 'sp-auth-state' && explicitLogout) {
-        explicitLogout = false;
-        try { sessionStorage.removeItem('sp_logged_out'); } catch(e3) {}
-      }
-      isLoggedIn = true;
-      userEmail  = email;
-      explicitLogout = false;
+      isLoggedIn = true; userEmail = email;
+      explicitLogout = false; // reset: új session kezdődik
       try { sessionStorage.removeItem('sp_logged_out'); } catch(e2) {}
       localStorage.setItem('sp_user', JSON.stringify({ email, name }));
       setLoggedInUI(name, email);
-      if (d.type === 'sp-login-success' && loginModalOverlay && loginModalOverlay.classList.contains('open')) {
-        closeLoginModal();
-        setTimeout(openDrawer, 300);
+      if (d.type === 'sp-login-success' || d.type === 'sp-modal-close') {
+        // Bejelentkezés: modal bezár → drawer kinyílik
+        if (loginModalOverlay && loginModalOverlay.classList.contains('open')) {
+          closeLoginModal();
+          setTimeout(openDrawer, 300);
+        }
       }
     } else {
-      // Bridge azt mondja: nincs session → minden cache törlése
-      isLoggedIn = false;
-      userEmail  = '';
-      clearAllCache();
-      setLoggedOutUI();
+      isLoggedIn = false; userEmail = ''; clearAllCache(); setLoggedOutUI();
       if (d.type === 'sp-logout') {
         explicitLogout = true;
-        try { sessionStorage.setItem('sp_logged_out', '1'); } catch(e) {}
+        try { sessionStorage.setItem('sp_logged_out', '1'); } catch(e2) {}
       }
     }
   });
 
-  window.addEventListener('storage', function(e) {
-    if (e.key === 'sp_user' && e.newValue === null) { isLoggedIn = false; userEmail = ''; explicitLogout = true; setLoggedOutUI(); }
-  });
-
-  // ── BROADCASTCHANNEL – kereszt-tab szinkron (web ↔ adatlap) ──
-  if (typeof BroadcastChannel !== 'undefined') {
-    const _authBC = new BroadcastChannel('sportingo-auth');
-    _authBC.onmessage = function(ev) {
-      const d = ev.data;
-      if (!d || !d.type) return;
-      if (d.type === 'sp-login-success' && d.loggedIn && d.email) {
+  // Cross-tab szinkron BroadcastChannel-en – adatlap ↔ sportingo.hu valós idejű szinkron
+  (function(){
+    if(typeof BroadcastChannel === 'undefined') return;
+    const _bc = new BroadcastChannel('sportingo-auth');
+    _bc.onmessage = function(evt){
+      const d = evt.data;
+      if(!d || !d.type) return;
+      const validTypes = ['sp-login-success','sp-auth-state','sp-logout'];
+      if(!validTypes.includes(d.type)) return;
+      if(d.loggedIn === true && d.email){
+        if(d.type === 'sp-auth-state' && explicitLogout) return;
         const email = d.email.trim().toLowerCase();
         const name  = d.name || email.split('@')[0];
         isLoggedIn = true; userEmail = email; explicitLogout = false;
-        try { sessionStorage.removeItem('sp_logged_out'); } catch(e) {}
-        localStorage.setItem('sp_user', JSON.stringify({ email, name }));
+        try{ sessionStorage.removeItem('sp_logged_out'); }catch(e2){}
+        localStorage.setItem('sp_user', JSON.stringify({email, name}));
         setLoggedInUI(name, email);
-      } else if (d.type === 'sp-logout') {
+      } else if(d.type === 'sp-logout'){
         isLoggedIn = false; userEmail = ''; explicitLogout = true;
-        clearAllCache();
-        try { sessionStorage.setItem('sp_logged_out', '1'); } catch(e) {}
-        setLoggedOutUI();
+        clearAllCache(); setLoggedOutUI();
+        try{ sessionStorage.setItem('sp_logged_out','1'); }catch(e){}
       }
     };
-  }
+  })();
+
+  window.addEventListener('storage', function(e) {
+    if (e.key === 'sp_user' && e.newValue === null) { isLoggedIn = false; userEmail = ''; explicitLogout = true; setLoggedOutUI(); }
+    // Cross-tab bejelentkezés szinkron
+    if (e.key === 'sp_user' && e.newValue) {
+      try {
+        const u = JSON.parse(e.newValue);
+        if (u && u.email && !isLoggedIn) {
+          isLoggedIn = true; userEmail = u.email; explicitLogout = false;
+          setLoggedInUI(u.name || u.email.split('@')[0], u.email);
+        }
+      } catch(ex) {}
+    }
+  });
 
   document.addEventListener('click', function(e) {
     const authBtn = e.target.closest('.sportingo-auth-btn');
@@ -1533,55 +1544,17 @@ init();
 
   document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeDrawer(); closeLoginModal(); } });
 
-  // ── BRIDGE SESSION KÉRÉS – handshake + retry ──
-  // Exponenciális retry amíg _bridgeAckd false; ha az első üzenet elvész (race),
-  // a következő próba beérkezik mielőtt a felhasználó észreveszi.
-  (function setupBridgeHandshake(){
-    var _attempts = 0;
-    var _maxAttempts = 10;
-    var _delays = [50,100,200,300,500,1000,1500,2000,2000,2000];
-
-    function askBridge(){
-      if(_bridgeAckd) return;
-      if(_attempts >= _maxAttempts) return;
-      var ai = document.getElementById('sportingo-auth-iframe');
-      if(ai && ai.contentWindow){
-        try{ ai.contentWindow.postMessage({type:'sp-request-session'},'https://jatekos.sportingo.hu'); }catch(e){}
-      }
-      var delay = _delays[_attempts] || 2000;
-      _attempts++;
-      setTimeout(askBridge, delay);
+  // IIFE betöltés után 100ms-el kérjük a session állapotot a bridge-től
+  // Ez garantálja hogy megkapjuk a session-t az oldal betöltésekor
+  setTimeout(function requestSessionFromBridge() {
+    const authIframe = document.getElementById('sportingo-auth-iframe');
+    if (authIframe && authIframe.contentWindow) {
+      try { authIframe.contentWindow.postMessage({type:'sp-request-session'}, 'https://jatekos.sportingo.hu'); } catch(e2) {}
+    } else {
+      // Iframe még nem töltött be, próbáljuk újra
+      setTimeout(requestSessionFromBridge, 300);
     }
-
-    var ai = document.getElementById('sportingo-auth-iframe');
-    if(ai){
-      if(ai.complete || ai.contentDocument){ setTimeout(askBridge, 50); }
-      else { ai.addEventListener('load', function(){ setTimeout(askBridge, 50); }); }
-    }
-    setTimeout(function(){ if(!_bridgeAckd) askBridge(); }, 300);
-  })();
-
-  // ── SESSION ÚJRALEKÉRÉS FÓKUSZ / LÁTHATÓSÁG ESETÉN ──
-  // Ha a user másik tabról visszatér erre az oldalra, az addig történt
-  // login/logout eseményeket ebben a tabban sosem kapta meg.
-  // Megoldás: fókuszba kerüléskor mindig újra lekérjük az auth állapotot a bridge-től.
-  // Ez az egyetlen megbízható cross-origin szinkronizációs pont.
-  function requestSessionFromBridge(){
-    var ai = document.getElementById('sportingo-auth-iframe');
-    if(ai && ai.contentWindow){
-      try{ ai.contentWindow.postMessage({type:'sp-request-session'},'https://jatekos.sportingo.hu'); }catch(e){}
-    }
-  }
-  // window focus: tab váltás után, amikor ez a tab kerül előtérbe
-  window.addEventListener('focus', requestSessionFromBridge);
-  // visibilitychange: tab előtérbe kerül (mobilon és modern böngészőkben megbízhatóbb)
-  document.addEventListener('visibilitychange', function(){
-    if(document.visibilityState === 'visible') requestSessionFromBridge();
-  });
-  // pageshow: visszanavigálás (back/forward cache) esetén is lefut
-  window.addEventListener('pageshow', function(e){
-    if(e.persisted) requestSessionFromBridge();
-  });
+  }, 100);
 
   document.getElementById('sp-stat-card-foglalasok').addEventListener('click', () => switchTab('foglalasok'));
   document.getElementById('sp-stat-card-kedvencek').addEventListener('click',  () => switchTab('kedvencek'));
@@ -1635,12 +1608,9 @@ init();
     return sb;
   }
   function waitForReadyThenLoad(retries = 0) {
-    // Megvárjuk: (1) bridge legalább egyszer ackolt ÉS (2) van bejelentkezett user
-    if (retries > 50) { bookingList.innerHTML = '<div class="sp-empty"><div class="sp-empty-icon">⚠️</div>Nem sikerült betölteni.</div>'; return; }
+    if (retries > 20) { bookingList.innerHTML = '<div class="sp-empty"><div class="sp-empty-icon">⚠️</div>Nem sikerült betölteni.</div>'; return; }
     initSb();
-    if (_bridgeAckd && sb && userEmail) { loadBookings(); return; }
-    // Ha a bridge már ackolt de nincs user → kijelentkezett állapot, stop
-    if (_bridgeAckd && !userEmail) { bookingList.innerHTML = '<div class="sp-empty"><div class="sp-empty-icon">📋</div>Nincs elérhető foglalás.</div>'; return; }
+    if (sb && userEmail) { loadBookings(); return; }
     setTimeout(() => waitForReadyThenLoad(retries + 1), 200);
   }
   async function loadMiniStats() {
