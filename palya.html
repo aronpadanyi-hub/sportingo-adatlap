@@ -183,11 +183,53 @@
     .sp-404 h2 { color: #0a1628; margin-bottom: 8px; font-size: 1.3rem; }
     .sp-404 p { color: #6b8a9a; font-size: .9rem; margin-bottom: 20px; }
     .sp-404 a { color: #1a8fc1; font-weight: 600; text-decoration: none; }
+
+    /* ── HEADER ── */
+    body { padding-top: 64px; }
+    #sp-header { position: fixed; top: 0; left: 0; right: 0; z-index: 9000; background: white; box-shadow: 0 2px 20px rgba(0,0,0,.07); }
+    #sp-header-inner { max-width: 1280px; margin: 0 auto; padding: 0 24px; height: 64px; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+    #sp-logo { display: flex; align-items: center; text-decoration: none; flex-shrink: 0; }
+    #sp-logo-img { height: 36px; width: auto; display: block; }
+    #sp-header-nav { display: flex; align-items: center; gap: 4px; }
+    .sp-hnav-link { padding: 7px 13px; border-radius: 8px; font-size: .87rem; font-weight: 600; color: #1a2e3b; text-decoration: none; transition: all .2s; white-space: nowrap; }
+    .sp-hnav-link:hover { background: rgba(26,143,193,.08); color: #1a8fc1; }
+    #sp-header-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+    .sp-social-btn { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #1a2e3b; text-decoration: none; transition: all .2s; background: rgba(0,0,0,.04); }
+    .sp-social-btn:hover { background: rgba(26,143,193,.1); color: #1a8fc1; }
+    .sp-auth-btn { display: flex; align-items: center; gap: 7px; padding: 7px 15px; border-radius: 20px; border: 1.5px solid #d4e8f0; background: white; font-family: inherit; font-size: .84rem; font-weight: 700; color: #1a2e3b; cursor: pointer; transition: all .2s; white-space: nowrap; text-decoration: none; }
+    .sp-auth-btn:hover { border-color: #1a8fc1; color: #1a8fc1; }
+    @media(max-width:640px) { #sp-header-nav { display: none; } body { padding-top: 60px; } #sp-header-inner { padding: 0 16px; height: 60px; } }
+
+    .spf-quickfill-btn { width: 100%; padding: 11px; background: linear-gradient(135deg,rgba(26,143,193,.08),rgba(45,191,126,.08)); border: 1.5px solid rgba(26,143,193,.3); border-radius: 12px; color: #1a8fc1; font-weight: 800; font-size: .88rem; cursor: pointer; font-family: inherit; transition: all .2s; }
+    .spf-quickfill-btn:hover { background: linear-gradient(135deg,rgba(26,143,193,.15),rgba(45,191,126,.15)); transform: translateY(-1px); }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 
 <body>
+
+<header id="sp-header">
+  <div id="sp-header-inner">
+    <a href="https://sportingo.hu" id="sp-logo">
+      <img src="https://amowwfjxeursokkznmxl.supabase.co/storage/v1/object/public/brand/Sportingo%20BRAND.svg" alt="Sportingo" id="sp-logo-img">
+    </a>
+    <nav id="sp-header-nav">
+      <a href="https://sportingo.hu" class="sp-hnav-link">⚽ Pályák</a>
+      <a href="https://sportingo.hu/hogyan-mukodik/" class="sp-hnav-link">Hogyan működik?</a>
+      <a href="https://sportingo.hu/palyat-uzemeltetsz/" class="sp-hnav-link">Pályát üzemeltetsz?</a>
+      <a href="https://sportingo.hu/kapcsolat/" class="sp-hnav-link">Kapcsolat</a>
+    </nav>
+    <div id="sp-header-right">
+      <a href="https://facebook.com/sportingo.hu" target="_blank" rel="noopener" class="sp-social-btn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+      </a>
+      <a href="https://instagram.com/sportingo.hu" target="_blank" rel="noopener" class="sp-social-btn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+      </a>
+      <a href="https://jatekos.sportingo.hu" class="sp-auth-btn" target="_blank">👤 Játékos portál</a>
+    </div>
+  </div>
+</header>
 
 <div class="sp-wrap" id="sp-root">
   <div class="sp-loading">
@@ -646,9 +688,44 @@ async function spfMount(origPalya) {
 
   function spfPrefillForm() {
     const u = SPF.loggedInUser;
+    const qwrap = document.getElementById('spf-quickfill-wrap');
+    const chip  = document.getElementById('spf-user-chip');
+
+    if (!u) {
+      // Vendég: üres form, semmi chip
+      if (chip)  chip.style.display  = 'none';
+      if (qwrap) qwrap.style.display = 'none';
+      return;
+    }
+
+    const name  = u.user_metadata?.full_name || u.user_metadata?.name || u.user_metadata?.display_name || '';
+    const email = u.email || '';
+    const tel   = u.user_metadata?.telefon || u.user_metadata?.phone || '';
+    const displayName = name || email.split('@')[0];
+
+    // Chip megjelenítése
+    if (chip) {
+      chip.style.display = 'flex';
+      chip.innerHTML = `
+        <div class="spf-user-avatar">${displayName[0].toUpperCase()}</div>
+        <div>
+          <div class="spf-user-name">👋 Üdv, ${displayName}!</div>
+          <div class="spf-user-email">${email}</div>
+        </div>`;
+    }
+
+    // Gyorskitöltés gomb: csak ha vannak adatok
+    if (qwrap) qwrap.style.display = 'block';
+
+    // Email előtöltés (mindig, ha van)
+    const eEl = document.getElementById('spf-email');
+    if (eEl && email) { eEl.value = email; eEl.disabled = true; }
+  }
+
+  window.spfQuickFill = function() {
+    const u = SPF.loggedInUser;
     if (!u) return;
-    // Név: metadata > cache name > email prefix
-    const name = u.user_metadata?.full_name || u.user_metadata?.name || u.user_metadata?.display_name || '';
+    const name  = u.user_metadata?.full_name || u.user_metadata?.name || u.user_metadata?.display_name || '';
     const email = u.email || '';
     const tel   = u.user_metadata?.telefon || u.user_metadata?.phone || '';
 
@@ -656,27 +733,26 @@ async function spfMount(origPalya) {
     const eEl = document.getElementById('spf-email');
     const tEl = document.getElementById('spf-tel');
 
-    if (nEl && name) nEl.value = name;
-    if (eEl && email) {
-      eEl.value    = email;
-      eEl.disabled = true;
-      eEl.title    = 'Bejelentkezett fiókod email címe';
-    }
-    if (tEl && tel) tEl.value = tel;
+    if (nEl) nEl.value = name;
+    if (eEl) { eEl.value = email; eEl.disabled = true; }
+    if (tEl) tEl.value = tel;
 
-    // User chip megjelenítése
+    // Gomb eltüntetése kitöltés után
+    const qwrap = document.getElementById('spf-quickfill-wrap');
+    if (qwrap) qwrap.style.display = 'none';
+
+    // Chip frissítése
     const chip = document.getElementById('spf-user-chip');
     if (chip) {
       const displayName = name || email.split('@')[0];
-      chip.style.display = 'flex';
       chip.innerHTML = `
         <div class="spf-user-avatar">${displayName[0].toUpperCase()}</div>
         <div>
-          <div class="spf-user-name">👋 Üdv, ${displayName}!</div>
-          <div class="spf-user-email">${email} · Adataid automatikusan kitöltve</div>
+          <div class="spf-user-name">✅ Adatok kitöltve</div>
+          <div class="spf-user-email">${email}</div>
         </div>`;
     }
-  }
+  };
 
   window.spfGoStep2 = function() {
     if (!SPF.selectedKeys.length) return;
@@ -821,6 +897,9 @@ async function spfMount(origPalya) {
             <button class="spf-back-btn" onclick="spfGoStep(1)">← Vissza</button>
           </div>
           <div id="spf-user-chip" class="spf-user-chip" style="display:none;"></div>
+          <div id="spf-quickfill-wrap" style="display:none;margin-bottom:14px;">
+            <button class="spf-quickfill-btn" onclick="spfQuickFill()">⚡ Adataim automatikus kitöltése</button>
+          </div>
           <div class="spf-form-row">
             <div><label class="spf-form-label">Teljes név *</label><input type="text" id="spf-nev" class="spf-form-input" placeholder="pl. Kiss János"></div>
             <div><label class="spf-form-label">Telefonszám</label><input type="tel" id="spf-tel" class="spf-form-input" placeholder="+36 30 123 4567"></div>
