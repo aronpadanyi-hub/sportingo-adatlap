@@ -207,9 +207,6 @@
     .sp-logout-btn:hover { background: #fed7d7; }
     .sp-empty { text-align: center; padding: 2rem 1rem; color: #6b8a9a; font-size: .85rem; }
     #sportingo-auth-iframe { position: fixed; left: -9999px; top: -9999px; width: 1px; height: 1px; border: none; opacity: 0; pointer-events: none; }
-      #sp-drawer { width: 100vw; }
-      #sp-login-modal { border-radius: 16px 16px 0 0; max-height: 95vh; position: fixed; bottom: 0; width: 100%; }
-      #sp-login-modal-overlay { align-items: flex-end; }
   </style>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800;900&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -581,7 +578,7 @@ init();
   window.addEventListener('message', function(e) {
     if (!e.origin.includes('jatekos.sportingo.hu')) return;
     const d = e.data; if (!d) return;
-    const validTypes = ['sp-login-success', 'sp-auth-state', 'sp-logout'];
+    const validTypes = ['sp-login-success', 'sp-auth-state', 'sp-logout', 'sp-modal-close'];
     if (d.type && !validTypes.includes(d.type)) return;
 
     if (d.loggedIn === true && d.email) {
@@ -595,7 +592,7 @@ init();
       try { sessionStorage.removeItem('sp_logged_out'); } catch(e2) {}
       localStorage.setItem('sp_user', JSON.stringify({ email, name }));
       setLoggedInUI(name, email);
-      if (d.type === 'sp-login-success') {
+      if (d.type === 'sp-login-success' || d.type === 'sp-modal-close') {
         // Bejelentkezés: modal bezár → drawer kinyílik
         if (loginModalOverlay && loginModalOverlay.classList.contains('open')) {
           closeLoginModal();
