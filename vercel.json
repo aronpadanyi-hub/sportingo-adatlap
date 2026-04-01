@@ -1,9 +1,21 @@
 {
-  "routes": [
-    { "src": "/auth-bridge",   "dest": "/auth-bridge.html" },
-    { "src": "/auth-callback", "dest": "/auth-callback.html" },
-    { "src": "/palya",         "dest": "/palya.html" },
-    { "src": "/helyszin",      "dest": "/helyszin.html" },
-    { "src": "/",              "dest": "/palya.html" }
+  "redirects": [
+    {
+      "source": "/palya",
+      "destination": "https://sportingo.hu/palya/:slug",
+      "permanent": true,
+      "has": [{ "type": "query", "key": "slug", "value": "(?<slug>.+)" }]
+    },
+    {
+      "source": "/helyszin",
+      "destination": "https://sportingo.hu/helyszin/:slug",
+      "permanent": true,
+      "has": [{ "type": "query", "key": "slug", "value": "(?<slug>.+)" }]
+    },
+    {
+      "source": "/(.*)",
+      "destination": "https://sportingo.hu",
+      "permanent": true
+    }
   ]
 }
